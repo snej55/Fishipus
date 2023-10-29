@@ -74,7 +74,7 @@ class Sword:
                 self.damp = 0.5
             if self.attacked > 40:
                 self.attacking = False
-                self.attacked = 0
+                self.attacked = 10
                 self.damp = 0.4
         if self.attacking:
             if self.shadow_release > 2 and self.app.gfx_manager.slashs:
