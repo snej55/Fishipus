@@ -36,6 +36,7 @@ class Sword:
         self.swing_dir = 0
         self.shadow_release = 0
         self.swing_vel = 0
+        self.slash = None
         self.arm_length = 1.5
         self.attacked = 10
         self.target_turn = 180
@@ -57,9 +58,9 @@ class Sword:
         self.attacked = 0
         self.damp = 0.5
         if not self.flipped:
-            self.app.gfx_manager.slashs.append(Slash(self.app, (self.target.rect().centerx - 5, self.target.pos[1] - 5), target=self.target, vflip=bool(self.target_dir == -math.pi * 0.25)))
+            self.slash = Slash(self.app, (self.target.rect().centerx - 5, self.target.pos[1] - 5), target=self.target, vflip=bool(self.target_dir == -math.pi * 0.25))
         else:
-            self.app.gfx_manager.slashs.append(Slash(self.app, (self.target.rect().centerx - 10, self.target.pos[1] - 5), flip=True, target=self.target, vflip=bool(self.target_dir == -math.pi * 0.25)))
+            self.slash = Slash(self.app, (self.target.rect().centerx - 10, self.target.pos[1] - 5), flip=True, target=self.target, vflip=bool(self.target_dir == -math.pi * 0.25))
 
     def update(self):
         self.attacked += 1 * self.app.dt
@@ -112,3 +113,7 @@ class Sword:
             offset[0] -= 3
             offset[1] += 0
         surf.blit(img_copy, (self.pos[0] + int(self.img.get_width() / 2) - int(img_copy.get_width() / 2) - scroll[0] + offset[0], self.pos[1] + int(self.img.get_height() / 2) - int(img_copy.get_height() / 2) - scroll[1] + offset[1]))
+        if self.slash:
+            self.slash.draw(surf, scroll)
+            if self.slash.animation.finished:
+                self.slash = None

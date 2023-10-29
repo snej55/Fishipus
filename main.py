@@ -16,8 +16,6 @@ class App(Pengine):
     def update(self):
         self.player.update()
         self.player.draw(self.screen, self.render_scroll)
-        if pygame.K_p in self.toggles:
-            print(len(self.player.get_colliding_ents()))
 
 if __name__ == '__main__':
     App().run()
