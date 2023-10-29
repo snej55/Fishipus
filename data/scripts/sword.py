@@ -3,6 +3,8 @@ import pygame, math
 from data.e.scripts.gfx.anim import Animation
 from data.e.scripts.gfx.particles import Shadow
 
+# changes in sword
+
 class Slash:
     def __init__(self, app, pos, flip=False, target=None, vflip=False):
         self.app = app
