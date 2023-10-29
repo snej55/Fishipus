@@ -7,7 +7,7 @@ Vector: TypeAlias = Union[list[float], pygame.Vector2, pygame.Vector3]
 
 SMOKE_DELAY = 2
 CHUNK_SIZE = [10, 8]
-ENTITY_QUAD_SIZE = [6, 6]
+ENTITY_QUAD_SIZE = [2, 2]
 WATER_CHUNK_SIZE = [15, 15]
 AUTO_TILE_TYPES = {"sand"}
 PHYSICS_TILE_TYPES = {"sand"}

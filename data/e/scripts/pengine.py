@@ -6,6 +6,7 @@ from data.e.scripts.assets import *
 from data.e.scripts.gfx.management import GFXManager
 from data.e.scripts.man.camera import Camera
 from data.e.scripts.env.tiles import TileMap
+from data.e.scripts.entities.ents import EntityManager
 
 class Pengine:
     def __init__(self, mode='game'):
@@ -35,6 +36,7 @@ class Pengine:
         self.tile_map = TileMap(self)
         self.toggles = {}
         self.gfx_manager = GFXManager(self)
+        self.entity_manager = EntityManager(self)
         self.camera = Camera(self, None)
         self.scroll = self.camera.scroll
     
@@ -86,6 +88,7 @@ class Pengine:
             self.render_scroll = self.camera.update()
             self.tile_map.draw(self.screen, self.render_scroll)
             self.update()
+            self.entity_manager.update(self.screen, self.render_scroll)
             self.gfx_manager.update(self.screen, self.render_scroll)
             pygame.transform.scale_by(self.screen, self.render_scale, self.display)
             pygame.display.set_caption(self.title + ' at ' f'{self.clock.get_fps() :.1f} FPS!')

@@ -2,6 +2,7 @@ import pygame, math
 
 from data.e.scripts.entities.ents import Entity, PlayerBase
 from data.scripts.sword import Sword
+from data.e.scripts.gfx.anim import Animation
 
 class Player(PlayerBase):
     def __init__(self, *args, **kwargs):
@@ -21,5 +22,16 @@ class Player(PlayerBase):
         super().draw(surf, scroll)
         self.sword.draw(surf, scroll)
 
+class Blobbo(Entity):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frames = {'idle': 0}
+        self.anim = {'idle': Animation(self, self.app.assets['game']['blobbo/idle'], 0.25, True)}
+        self.sec()
+    
+    def handle_animations(self):
+        self.state = 'idle'
+        self.frames['idle'] = self.anim['idle'].update(self.app.dt)
+        return super().handle_animations()
         
     

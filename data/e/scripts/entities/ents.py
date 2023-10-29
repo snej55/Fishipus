@@ -2,6 +2,7 @@ import pygame, math, random
 
 from data.e.scripts.gfx.particles import Particle
 from data.e.scripts.gfx.anim import Animation
+from data.e.scripts.bip import *
 
 class EntityManager:
     def __init__(self, app):
@@ -10,21 +11,21 @@ class EntityManager:
         self.entities_updated = 0
     
     def get_quad(self, pos):
-        loc = str(int(pos[0] / self.app.tile_size / self.app.entity_quad_size[0])) + ';' + str(int(pos[1] / self.app.tile_size / self.app.entity_quad_size[1]))
+        loc = str(int(pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0])) + ';' + str(int(pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]))
         if not loc in self.ents_frame:
             self.ents_frame[loc] = []
         return self.ents_frame[loc]
     
     def update(self, surf, scroll):
         self.entities_updated = 0
-        for y in range(math.ceil(surf.get_height() / (self.app.entity_quad_size.y * self.app.tile_size)) + 2):
-            for x in range(math.ceil(surf.get_width() / (self.app.entity_quad_size.x * self.app.tile_size)) + 2):
-                target_x = x - 2 + math.ceil(int(scroll.x) / (self.app.entity_quad_size.x * self.app.tile_size))
-                target_y = y - 2 + math.ceil(int(scroll.y) / (self.app.entity_quad_size.y * self.app.tile_size))
+        for y in range(math.ceil(surf.get_height() / (ENTITY_QUAD_SIZE[1] * TILE_SIZE)) + 2):
+            for x in range(math.ceil(surf.get_width() / (ENTITY_QUAD_SIZE[0] * TILE_SIZE)) + 2):
+                target_x = x - 2 + math.ceil(int(scroll[0]) / (ENTITY_QUAD_SIZE[0] * TILE_SIZE))
+                target_y = y - 2 + math.ceil(int(scroll[1]) / (ENTITY_QUAD_SIZE[1] * TILE_SIZE))
                 target_quad = f'{target_x};{target_y}'
                 if target_quad in self.ents_frame:
                     for i, entity in sorted(enumerate(self.ents_frame[target_quad]), reverse=True):
-                        kill = entity.update(self.app.tile_map.physics_map)
+                        kill = entity.update()
                         entity.draw(surf, scroll)
                         self.entities_updated += 1
                         if kill:
@@ -62,6 +63,28 @@ class Entity:
     
     def __getitem__(self, item):
         return self.__dict__[item]
+    
+    def get_colliding_ents(self, rect=None):
+        entity_rect = rect if rect else self.rect()
+        entities = []
+        for y in range(3):
+            for x in range(3):
+                loc = str(int(self.pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0]) + x - 1) + ';' + str(int(self.pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]) + y - 1)
+                if loc in self.app.entity_manager.ents_frame:
+                    for entity in self.app.entity_manager.ents_frame[loc]:
+                        if entity.rect().colliderect(entity_rect):
+                            entities.append(entity)
+        return entities
+    
+    def get_neighbours(self):
+        entities = []
+        for y in range(3):
+            for x in range(3):
+                loc = str(int(self.pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0]) + x - 1) + ';' + str(int(self.pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]) + y - 1)
+                if loc in self.app.entity_manager.ents_frame:
+                    for entity in self.app.entity_manager.ents_frame[loc]:
+                        entities.append(entity)
+        return entities
 
     def copy(self):
         entity = Entity(self.pos, self.dimensions, self.anim_offset, self.app, self.mode, self.fiend, self.enemy)
@@ -93,6 +116,10 @@ class Entity:
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)
 
     def handle_animations(self):
+        if self.hurt < 5:
+            self.state = 'hurt'
+            self.frames['hurt'] = 0
+            return self.hurt
         return None
     
     def update(self):
@@ -176,6 +203,7 @@ class PlayerBase(Entity):
         self.grounded_tim = grounded_tim
         self.jump_tim = jump_tim
         self.fall_buff = fall_buff
+        self.sec()
 
     def update(self):
         self.grounded += self.grounded_tim * self.app.dt
@@ -234,3 +262,4 @@ class PlayerBase(Entity):
             self.state = 'idle'
             self.frames['idle'] = self.anim['idle'].update(self.app.dt)
             self.frames['run'] = 7
+        return super().handle_animations()
