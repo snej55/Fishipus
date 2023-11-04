@@ -7,13 +7,13 @@ from .camera import Camera
 class Window:
     def __init__(self, app, shaders={'frag': None, 'vert': None}):
         self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
-        self.display = pygame.display.set_mode(WIN_DIMENSIONS, flags=pygame.DOUBLEBUF | pygame.OPENGL)
+        self.display = pygame.display.set_mode(WIN_DIMENSIONS)#, flags=pygame.DOUBLEBUF | pygame.OPENGL)
         self.screen = pygame.Surface((self.display.get_width() / self.render_scale.x, self.display.get_height() / self.render_scale.y))
-        self.app = app
-        self.camera = Camera(app)
+        self.app = app#
+        self.camera = Camera(app, self)
         self.scroll = self.camera.scroll
         self.render_scroll = [0, 0]
-        self.mgl = MGL(app, frag_path=shaders['frag'], vert_path=shaders['vert'])
+        #self.mgl = MGL(app, frag_path=shaders['frag'], vert_path=shaders['vert'])
     
     def set_camera_target(self, target):
         self.camera.target = target
@@ -31,8 +31,8 @@ class Window:
     def shade(self, uniforms):
         self.mgl.draw(self.screen, uniforms)
     
-    def inflate(self, scale=(0,0)):
+    def inflate(self, scale=0):
         scale = scale if scale else self.render_scale
-        scaled_surf = pygame.tranform.scale_by(self.screen, scale)
+        scaled_surf = pygame.transform.scale_by(self.screen, scale)
         self.display.blit(scaled_surf, (-(scaled_surf.get_width() - self.display.get_width()), -(scaled_surf.get_height() - self.display.get_height())))
         pygame.display.flip()

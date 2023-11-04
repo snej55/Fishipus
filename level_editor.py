@@ -9,8 +9,8 @@ from data.e.scripts.tools.ui.texto import TextBox, Font
 PHYSICS_MODES = ['block', 'danger']
 
 class Editor(Pengine):
-    def __init__(self, path):
-        super().__init__(path)
+    def __init__(self):
+        super().__init__(mode='edit')
         self.tile_variant = 0
         self.tile_group = 0
         self.tile_list = list(self.assets['edit'])

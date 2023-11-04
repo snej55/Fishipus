@@ -38,17 +38,16 @@ class MGL:
         frag = default_frag
         vert = default_vert
         if frag_path:
-            frag = open('data/shaders/' + frag_path)
+            frag = open('data/shaders/' + frag_path, 'r').read()
         if vert_path:
-            vert = open('data/shaders/' + vert_path)
+            vert = open('data/shaders/' + vert_path, 'r').read()
         self.program_vert = vert
         self.program_frag = self.ctx.program(vertex_shader=vert, fragment_shader=frag)
         self.temp_texs = []
         self.render_objects = self.ctx.vertex_array(self.program_frag, [(self.quad_buffer, '2f 2f', 'vert', 'texcoord')])
-    
-    @staticmethod
-    def surf_to_texture(surf):
-        tex = ctx.texture(surf.get_size(), 4)
+
+    def surf_to_texture(self, surf):
+        tex = self.ctx.texture(surf.get_size(), 4)
         tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
         tex.swizzle = 'BGRA'
         tex.write(surf.get_view('1'))
@@ -62,10 +61,11 @@ class MGL:
                 self.temp_texs.append(tex)
         return uniforms
     
-    def update(screen, uniforms):
+    def update(self, screen, uniforms):
         tex_id = 0
         frame_tex = self.surf_to_texture(screen)
         frame_tex.use(tex_id)
+        tex_id = 1
         self.program_frag['tex'] = tex_id
         unis = list(self.program_frag)
         for uniform in uniforms:
@@ -74,9 +74,9 @@ class MGL:
                     uniforms[uniform].use(tex_id)
                     self.program_frag[uniform] = tex_id
                     tex_id += 1
-                    texs.append(uniform[uniform])
                 else:
                     self.program_frag[uniform] = uniforms[uniform]
+        frame_tex.release()
     
     def draw(self, surf, uniforms={}):
         self.update(surf, self.parse_uniforms(uniforms))

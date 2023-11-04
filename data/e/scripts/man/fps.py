@@ -13,4 +13,4 @@ class Tick:
         self.dt = time.time() - self.last_time
         self.dt *= 60 * self.slomo
         self.last_time = time.time()
-        self.clock.tick(fps)
+        self.clock.tick(self.fps)

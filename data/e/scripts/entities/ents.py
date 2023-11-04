@@ -58,7 +58,7 @@ class Entity:
         self.hurt = 99
         self.name = type(self).__name__
         if self.mode != 'player':
-            self.quad = self.app.entity_manager.get_quad(self.pos)
+            self.quad = self.app.world.entity_manager.get_quad(self.pos)
             self.quad.append(self)
     
     def __getitem__(self, item):
@@ -131,7 +131,7 @@ class Entity:
         self.falling += 1 * self.app.dt
         self.collisions = {'left': False, 'right': False, 'up': False, 'down': False}
         entity_rect = self.rect()
-        for rect in self.app.tile_map.physics_map.physics_rects_around(self.pos):
+        for rect in self.app.world.tile_map.physics_map.physics_rects_around(self.pos):
             if rect.colliderect(entity_rect):
                 if frame_movement.x * self.app.dt > 0:
                     self.collisions['right'] = True
@@ -142,7 +142,7 @@ class Entity:
                 self.pos.x = entity_rect.x
         self.pos.y += frame_movement.y * self.app.dt
         entity_rect = self.rect()
-        for rect in self.app.tile_map.physics_map.physics_rects_around(self.pos):
+        for rect in self.app.world.tile_map.physics_map.physics_rects_around(self.pos):
             if rect.colliderect(entity_rect):
                 if frame_movement.y * self.app.dt > 0:
                     self.collisions['down'] = True
@@ -156,7 +156,7 @@ class Entity:
                 self.pos.y = entity_rect.y
 
         self.movement.y = min(16, self.movement.y + self.gravity * self.app.dt)
-        return self.health < 0 or self.app.tile_map.physics_map.tile_type_at(self.rect().center) in self.app.danger
+        return self.health < 0 or self.app.world.tile_map.physics_map.tile_type_at(self.rect().center) in self.app.danger
 
     def damage(self, intt=1):
         self.health -= intt

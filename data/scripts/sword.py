@@ -45,7 +45,7 @@ class Sword:
         self.damp = 0.4
     
     def attack(self):
-        self.app.camera.screen_shake = max(self.app.camera.screen_shake, 1)
+        self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 1)
         if self.target_dir == -math.pi * 0.25:
             self.target_dir = math.pi * 0.75
         else:
@@ -78,8 +78,8 @@ class Sword:
                 self.attacked = 10
                 self.damp = 0.4
         if self.attacking:
-            if self.shadow_release > 2 and self.app.gfx_manager.slashs:
-                if self.app.gfx_manager.slashs[-1].animation.frame < 13:
+            if self.shadow_release > 2 and self.app.world.gfx_manager.slashs:
+                if self.app.world.gfx_manager.slashs[-1].animation.frame < 13:
                     self.shadow_release = 0
                     img_copy = pygame.transform.rotate(self.img, math.degrees(self.angle) - 90 + self.angle_offset)
                     self.flipped = False

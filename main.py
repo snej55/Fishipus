@@ -11,15 +11,14 @@ class App(Pengine):
             'frag': 'frag.glsl',
             'vert': 'vert.glsl'
         })
-        self.tile_map.load('data/maps/0.json')
-        self.title = 'JINJAMIJET'
+        self.world.tile_map.load('data/maps/0.json')
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
-        self.camera.target = self.player
         self.blobbo = Blobbo((100, 100), (6, 7), (-1, -1), self, 'blobbo')
+        self.world.window.set_camera_target(self.player)
 
-    def update(self):
+    def update(self, screen, scroll):
         self.player.update()
-        self.player.draw(self.screen, self.render_scroll)
+        self.player.draw(screen, scroll)
 
 if __name__ == '__main__':
     App().run()
