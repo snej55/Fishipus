@@ -103,5 +103,5 @@ class Pengine:
                 pygame.display.flip()
                 self.clock.tick(self.fps)
             else:
-                self.world.update(shade_uniforms={'noise': self.world.window.screen, 'time': self.time})
+                self.world.update(shade_uniforms={'noise': self.assets['game']['noise'], 'time': self.time * 5})
                 self.dt = self.world.tick.dt

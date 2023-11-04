@@ -63,10 +63,6 @@ class MGL:
     
     def update(self, screen, uniforms):
         tex_id = 0
-        frame_tex = self.surf_to_texture(screen)
-        frame_tex.use(tex_id)
-        tex_id = 1
-        self.program_frag['tex'] = tex_id
         unis = list(self.program_frag)
         for uniform in uniforms:
             if uniform in unis:
@@ -76,10 +72,12 @@ class MGL:
                     tex_id += 1
                 else:
                     self.program_frag[uniform] = uniforms[uniform]
-        frame_tex.release()
     
     def draw(self, surf, uniforms={}):
-        self.update(surf, self.parse_uniforms(uniforms))
+        uniforms = self.parse_uniforms(uniforms)
+        uniforms['tex'] = self.surf_to_texture(surf)
+        self.temp_texs.append(uniforms['tex'])
+        self.update(surf, uniforms)
         self.render_objects.render(mode=moderngl.TRIANGLE_STRIP)
         for tex in self.temp_texs:
             tex.release()

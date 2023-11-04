@@ -8,6 +8,7 @@ in vec2 uvs;
 out vec4 f_color;
 
 void main() {
-    vec3 mult = texture(noise, uvs + (time * 0.0001)).rgb;
-    f_color = vec4(texture(tex, uvs).rgb, 1.0);
+    //vec2 texCoords = vec2(uvs.x)
+    vec3 mult = sin(texture(noise, uvs + (time * 0.0001)).rgb + time * 0.01);
+    f_color = vec4(texture(tex, uvs).rgb + mult, 1.0);
 }
