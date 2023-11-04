@@ -41,6 +41,7 @@ class Pengine:
         self.window = Window(self)
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
+        self.time = 0
     
     def load_level(self, path):
         return self.tile_map.load(path)
@@ -59,6 +60,7 @@ class Pengine:
             self.dt = time.time() - self.last_time
             self.dt *= 60
             self.last_time = time.time()
+            self.time += time
             self.mouse_pos = list(n / self.render_scale[i] for i, n in enumerate(pygame.mouse.get_pos()))
             self.screen.fill((0, 0, 0))
             self.toggles = set([])

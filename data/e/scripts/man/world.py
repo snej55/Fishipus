@@ -1,2 +1,6 @@
-#TODO: do the management stuff here
-#TODO: refactoring throughout entities, particle, etc
+import pygame
+from .window import Window
+
+class World:
+    def __init__(self, app):
+        self.window = Window
