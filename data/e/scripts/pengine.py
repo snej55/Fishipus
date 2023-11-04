@@ -10,15 +10,14 @@ from data.e.scripts.env.tiles import TileMap
 from data.e.scripts.entities.ents import EntityManager
 
 class Pengine:
-    def __init__(self, mode='game'):
-        self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
-        self.display = pygame.display.set_mode(WIN_DIMENSIONS)
-        self.screen = pygame.Surface((self.display.get_width() / self.render_scale.x, self.display.get_height() / self.render_scale.y))
+    def __init__(self, mode='game', config={}):
+        self.config = config
         self.clock = pygame.time.Clock()
         self.dt = 1
-        self.title = 'Rogue Bottoms'
+        self.title = 'pge window'
+        if 'caption' in self.config:
+            self.title = self.config['caption']
         self.last_time = time.time() - 1 / 60
-        self.fps = 0
         self.tile_size = TILE_SIZE
         self.chunk_size = pygame.Vector2(CHUNK_SIZE)
         self.auto_tile_types = AUTO_TILE_TYPES
@@ -36,8 +35,11 @@ class Pengine:
         self.keys = {key: False for key in KEYS}
         self.tile_map = TileMap(self)
         self.toggles = {}
-        self.gfx_manager = GFXManager(self)
-        self.entity_manager = EntityManager(self)
+        self.shaders = {'frag': None, 'vert': None}
+        for prgram in self.shaders:
+            if prgram in self.config:
+                self.shaders[prgram] = self.config[prgram]
+        self.shaders = {'frag': self.shaders['frag'], 'vert': self.shaders['vert']}
         self.window = Window(self)
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
@@ -60,7 +62,7 @@ class Pengine:
             self.dt = time.time() - self.last_time
             self.dt *= 60
             self.last_time = time.time()
-            self.time += time
+            self.time += 1 * self.dt / self.world.tick.slomo
             self.mouse_pos = list(n / self.render_scale[i] for i, n in enumerate(pygame.mouse.get_pos()))
             self.screen.fill((0, 0, 0))
             self.toggles = set([])

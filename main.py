@@ -6,7 +6,11 @@ from data.scripts.sword import Sword
 
 class App(Pengine):
     def __init__(self):
-        super().__init__()
+        super().__init__(config={
+            'caption': 'JINJAMIJET',
+            'frag': 'frag.glsl',
+            'vert': 'vert.glsl'
+        })
         self.tile_map.load('data/maps/0.json')
         self.title = 'JINJAMIJET'
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)

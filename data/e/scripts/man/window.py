@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame
 
 from data.e.scripts.bip import *
 from .mgl.mgl import MGL
@@ -30,3 +30,9 @@ class Window:
     
     def shade(self, uniforms):
         self.mgl.draw(self.screen, uniforms)
+    
+    def inflate(self, scale=(0,0)):
+        scale = scale if scale else self.render_scale
+        scaled_surf = pygame.tranform.scale_by(self.screen, scale)
+        self.display.blit(scaled_surf, (-(scaled_surf.get_width() - self.display.get_width()), -(scaled_surf.get_height() - self.display.get_height())))
+        pygame.display.flip()
