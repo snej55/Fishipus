@@ -5,6 +5,7 @@ from data.e.scripts.bip import *
 from data.e.scripts.assets import *
 from data.e.scripts.gfx.management import GFXManager
 from data.e.scripts.man.camera import Camera
+from data.e.scripts.man.window import Window
 from data.e.scripts.env.tiles import TileMap
 from data.e.scripts.entities.ents import EntityManager
 
@@ -37,7 +38,8 @@ class Pengine:
         self.toggles = {}
         self.gfx_manager = GFXManager(self)
         self.entity_manager = EntityManager(self)
-        self.camera = Camera(self, None)
+        self.window = Window(self)
+        self.camera = self.window.camera
         self.scroll = self.camera.scroll
     
     def load_level(self, path):
