@@ -34,5 +34,5 @@ class Window:
     def inflate(self, scale=0):
         scale = scale if scale else self.render_scale
         scaled_surf = pygame.transform.scale_by(self.screen, scale)
-        self.display.blit(scaled_surf, (-(scaled_surf.get_width() - self.display.get_width()), -(scaled_surf.get_height() - self.display.get_height())))
+        self.display.blit(scaled_surf, (-(scaled_surf.get_width() - self.display.get_width()) * 0.5, -(scaled_surf.get_height() - self.display.get_height()) * 0.5))
         pygame.display.flip()

@@ -22,5 +22,5 @@ class World:
         self.gfx_manager.update(screen, scroll)
         pygame.display.set_caption(f'{self.app.title} at {self.tick.clock.get_fps() :.1f} FPS')
         self.window.shade(shade_uniforms)
-        self.window.inflate()
+        self.window.inflate(scale=3.0)
         self.tick.update()

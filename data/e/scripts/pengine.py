@@ -64,7 +64,7 @@ class Pengine:
     
     def run(self):
         while self.running:
-            self.time += 1 * self.dt / self.world.tick.slomo
+            self.time += 1 * self.dt
             self.mouse_pos = list(n / self.render_scale[i] for i, n in enumerate(pygame.mouse.get_pos()))
             self.toggles = set([])
             self.scrolling = 0
@@ -103,5 +103,5 @@ class Pengine:
                 pygame.display.flip()
                 self.clock.tick(self.fps)
             else:
-                self.world.update(shade_uniforms={'noise': self.assets['game']['noise'], 'time': self.time * 5})
+                self.world.update(shade_uniforms={'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll})
                 self.dt = self.world.tick.dt
