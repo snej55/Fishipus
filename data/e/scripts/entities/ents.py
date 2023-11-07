@@ -36,7 +36,7 @@ class EntityManager:
 
 #  Entity parent class
 class Entity:
-    def __init__(self, pos, dimensions, anim_offset, app, e_type, fiend=True, enemy=None):
+    def __init__(self, pos, dimensions, anim_offset, app, e_type, fiend=True, enemy=None, mask_collide_offset=None, hurt_recovery=1, hurt_flash=5):
         self.pos = pygame.Vector2(pos)
         self.dimensions = pygame.Vector2(dimensions)
         self.anim_offset = pygame.Vector2(anim_offset)
@@ -49,6 +49,9 @@ class Entity:
         self.movement = pygame.Vector2(0, 0)
         self.collisions = {'left': False, 'right': False, 'up': False, 'down': False}
         self.flipped = False
+        self.hurt_recovery = hurt_recovery
+        self.hurt_flash = hurt_flash
+        self.orig_anim_offset = pygame.Vector2(anim_offset)
         self.gravity = 0.3
         self.outside = pygame.Vector2(0, 0)
         self.health = 10
@@ -60,6 +63,10 @@ class Entity:
         if self.mode != 'player':
             self.quad = self.app.world.entity_manager.get_quad(self.pos)
             self.quad.append(self)
+        
+    def collide_mask(self, mask, pos):
+        offset = (pos[0] - self.pos.x, pos[1] - self.pos.y)
+        return self.hurt_mask.overlap(mask, offset)
     
     def __getitem__(self, item):
         return self.__dict__[item]
@@ -106,9 +113,10 @@ class Entity:
         self.chk('mode')
         self.chk('pos')
         self.frames['hurt'] = 0
-        hurt_mask = pygame.mask.from_surface(self.img().copy())
-        hurt_surf = pygame.Surface(hurt_mask.get_size())
-        hurt_surf.blit(hurt_mask.to_surface(), (0, 0))
+        self.hurt_mask = pygame.mask.from_surface(self.img().copy())
+        hurt_surf = pygame.Surface(self.hurt_mask.get_size())
+        hurt_surf.blit(self.hurt_mask.to_surface(), (0, 0))
+        hurt_surf = pygame.transform.scale(hurt_surf, (hurt_surf.get_width() + 2, hurt_surf.get_height() + 2))
         hurt_surf.set_colorkey((0, 0, 0))
         self.app.assets['game'][self.mode + '/' + 'hurt'] = [hurt_surf]
     
@@ -116,8 +124,11 @@ class Entity:
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)
 
     def handle_animations(self):
-        if self.hurt < 5:
+        self.hurt += self.hurt_recovery * self.app.dt
+        self.anim_offset = pygame.Vector2(self.orig_anim_offset)
+        if self.hurt < self.hurt_flash:
             self.state = 'hurt'
+            self.anim_offset = pygame.Vector2(self.orig_anim_offset[0] - 1, self.orig_anim_offset[1] - 1)
             self.frames['hurt'] = 0
             return self.hurt
         return None

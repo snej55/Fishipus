@@ -13,6 +13,7 @@ class Slash:
         self.pos = list(pos)
         self.vflip = vflip
         self.flip = flip
+        self.img = None
         self.target = target
         if self.target:
             self.offset = (self.target.pos[0] - self.pos[0], self.target.pos[1] - self.pos[1])
@@ -21,7 +22,8 @@ class Slash:
         if self.target:
             self.pos[0] = self.target.pos[0] - self.offset[0]
             self.pos[1] = self.target.pos[1] - self.offset[1]
-        surf.blit(self.anim[math.floor(self.animation.update(self.app.dt)) % len(self.anim)], (self.pos[0] - scroll[0], self.pos[1] - scroll[1]))
+        self.img = self.anim[math.floor(self.animation.update(self.app.dt)) % len(self.anim)]
+        surf.blit(self.img, (self.pos[0] - scroll[0], self.pos[1] - scroll[1]))
 
 class Sword:
     def __init__(self, app, pos, target=None, offset=(0, 0)):
@@ -43,6 +45,9 @@ class Sword:
         self.flipped = False
         self.target_dir = 1 * math.pi
         self.damp = 0.4
+        self.attack_surf = pygame.Surface((32, 32))
+        self.attack_mask = pygame.mask.from_surface(self.attack_surf)
+        self.attack_offset = (0, 0)
     
     def attack(self):
         self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 1)
@@ -117,3 +122,11 @@ class Sword:
             self.slash.draw(surf, scroll)
             if self.slash.animation.finished:
                 self.slash = None
+        self.attack_surf.fill((0, 0, 0, 0))
+        if self.attacking and self.slash:
+            self.attack_surf.blit(img_copy, (16 + int(self.img.get_width() / 2) - int(img_copy.get_width() / 2) + offset[0], 16 + int(self.img.get_height() / 2) - int(img_copy.get_height() / 2) + offset[1]))
+            self.attack_surf.blit(self.slash.img, (16 - self.slash.offset[0], 16 - self.slash.offset[1]))
+        self.attack_mask = pygame.mask.from_surface(self.attack_surf)
+        self.attack_surf = self.attack_mask.to_surface()
+        self.attack_offset = (self.target.pos.x - 16, self.target.pos.y - 16)
+        return self.attack_mask, self.attack_offset

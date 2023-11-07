@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 
 from data.e.scripts.entities.ents import Entity, PlayerBase
 from data.scripts.sword import Sword
@@ -28,6 +28,16 @@ class Blobbo(Entity):
         self.frames = {'idle': 0}
         self.anim = {'idle': Animation(self, self.app.assets['game']['blobbo/idle'], 0.25, True)}
         self.sec()
+    
+    def update(self):
+        if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
+            self.hurt = 4
+            self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 2)
+            for _ in range(20):
+                angle = random.random() * math.pi * 2
+                vel = random.random() * 2
+                self.app.world.gfx_manager.particles['kick_up'].spawn(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), )
+        return super().update()
     
     def handle_animations(self):
         self.state = 'idle'

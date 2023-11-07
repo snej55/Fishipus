@@ -14,15 +14,15 @@ class GFXManager:
         self.shockwaves = []
         self.particles = []
         self.shadows = []
-        self.particle_systems = {}
+        self.particles = {}
         self.slashs = []
         self.app = app
     
     def add_particle_system(self, name: str, mode: str, trail=None, friction=0.999, bounce=0.7, explode=None, gravity=0.24, fade=False, decay=0.005):
         if mode == 'kickup':
-            self.particle_systems[name] = KickUp(self.app, friction, bounce, gravity, decay)
+            self.particles[name] = KickUp(self.app, friction, bounce, gravity, decay)
         elif mode == 'physics':
-            self.particle_systems[name] = PhysicsParticles(self.app, trail, friction, bounce, explode, gravity, fade)
+            self.particles[name] = PhysicsParticles(self.app, trail, friction, bounce, explode, gravity, fade)
 
     @staticmethod
     def alpha_surf(dim, alpha, color):
@@ -45,8 +45,8 @@ class GFXManager:
         return (surf, (smoke[0][0] - surf.get_width() * 0.5 - scroll.x, smoke[0][1] - surf.get_height() * 0.5 - scroll.y))
     
     def update(self, surf, scroll):
-        for system in self.particle_systems:
-            self.particle_systems[system].update(surf, scroll)
+        for system in self.particles:
+            self.particles[system].update(surf, scroll)
         for spark in self.sparks.copy():
             kill = spark.update(self.app.dt)
             if not kill:

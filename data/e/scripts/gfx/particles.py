@@ -79,6 +79,9 @@ class KickUp:
         surf.set_alpha(alpha)
         return surf
     
+    def spawn(self, pos, vel, color, alpha, bounce=0.8, friction=0.9, decay=0.005, gravity=0.24):
+        self.particles.append(list(pos), list(vel), alpha, tuple(color), bounce, friction, decay, gravity)
+    
     def update(self, screen, scroll):
         for particle in self.particles.copy():
             if particle[0] in self.game:
@@ -86,20 +89,20 @@ class KickUp:
                     particle[0][0] += particle[1][0] * self.game.dt
                     if self.game.tile_map.solid_check(particle[0]):
                         particle[0][0] -= particle[1][0] * self.game.dt
-                        particle[1][0] *= -self.bounce
-                        particle[1][1] *= self.friction
-                    particle[1][1] += self.gravity
+                        particle[1][0] *= -particle[4]
+                        particle[1][1] *= particle[5]
+                    particle[1][1] += particle[7]
                     particle[0][1] += particle[1][1] * self.game.dt
                     if self.game.tile_map.solid_check(particle[0]):
                         particle[0][1] -= particle[1][1] * self.game.dt
-                        particle[1][1] *= -self.bounce
-                        particle[1][0] *= self.friction
-                particle[2] -= self.decay * self.game.dt
+                        particle[1][1] *= -particle[4]
+                        particle[1][0] *= particle[5]
+                particle[2] -= particle[6] * self.game.dt
                 screen.blit(self.rect_surf(1, particle[2], particle[3]), (particle[0][0] - 0.5 - scroll[0], particle[0][1] - 0.5 - scroll[1]))
                 if particle[2] < 0:
                     self.particles.remove(particle)
             else:
-                particle[2] -= self.decay * self.game.dt * 4
+                particle[2] -= particle[6] * self.game.dt * 4
 
 class Particle:
     def __init__(self, game, particle_type, pos, vel=[0, 0], frame=0, solid=False, friction=(1, 1)):

@@ -13,8 +13,9 @@ class App(Pengine):
         })
         self.world.tile_map.load('data/maps/0.json')
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
-        self.blobbo = Blobbo((100, 100), (6, 7), (-1, -1), self, 'blobbo')
+        self.blobbo = Blobbo((250, 100), (6, 7), (-1, -1), self, 'blobbo')
         self.world.window.set_camera_target(self.player)
+        self.world.gfx_manager.add_particle_system('kick_up', 'kickup')
 
     def update(self, screen, scroll):
         self.player.update()
