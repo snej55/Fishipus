@@ -69,7 +69,8 @@ def load_palettes(assets):
         palettes = []
         if not (type(imgs) == pygame.Surface):
             for item in imgs:
-                palettes.append(get_pals(item))
+                if (type(imgs) == list):
+                    palettes.append(get_pals(item))
         else:
             palettes.append(load_palette(imgs))
         return palettes

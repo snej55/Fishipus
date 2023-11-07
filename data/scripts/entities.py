@@ -30,13 +30,17 @@ class Blobbo(Entity):
         self.sec()
     
     def update(self):
-        if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
+        if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset) and not self.hit:
             self.hurt = 4
             self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 2)
-            for _ in range(20):
+            self.hit = True
+            self.app.world.tick.slomo = 0.5
+            for _ in range(random.randint(5, 15)):
                 angle = random.random() * math.pi * 2
-                vel = random.random() * 2
-                self.app.world.gfx_manager.particles['kick_up'].spawn(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), )
+                vel = random.random() * 2 + 2
+                self.app.world.gfx_manager.particles['kick_up'].spawn(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), random.choice([(5, 50, 57), (0, 95, 65), (8, 178, 59), (71, 246, 65)]), random.randint(100, 200))
+        else:
+            self.hit = False
         return super().update()
     
     def handle_animations(self):

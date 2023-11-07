@@ -23,14 +23,14 @@ class PhysicsParticles:
                 speed = (abs(particle[1][0]) + abs(particle[1][1]))
                 particle[1][0] *= 0.999
                 particle[0][0] += particle[1][0] * self.game.dt
-                if self.game.tile_map.solid_check(particle[0]):
+                if self.game.world.tile_map.physics_map.solid_check(particle[0]):
                     particle[0][0] -= particle[1][0] * self.game.dt
                     particle[1][0] *= self.bounce
                     particle[1][1] *= self.friction
                 particle[1][1] += self.gravity * self.game.dt
                 particle[1][1] *= 0.999
                 particle[0][1] += particle[1][1] * self.game.dt
-                if self.game.tile_map.solid_check(particle[0]):
+                if self.game.world.tile_map.physics_map.solid_check(particle[0]):
                     particle[0][1] -= particle[1][1] * self.game.dt
                     particle[1][1] *= self.bounce
                     particle[1][0] *= self.friction
@@ -73,27 +73,30 @@ class KickUp:
     @staticmethod
     def rect_surf(width, alpha, color):
         surf = pygame.Surface((width, width))
-        surf.fill(color)
+        try:
+            surf.fill(color)
+        except ValueError:
+            print(color)
         surf.convert()
         surf.set_colorkey((0, 0, 0))
         surf.set_alpha(alpha)
         return surf
     
-    def spawn(self, pos, vel, color, alpha, bounce=0.8, friction=0.9, decay=0.005, gravity=0.24):
-        self.particles.append(list(pos), list(vel), alpha, tuple(color), bounce, friction, decay, gravity)
+    def spawn(self, pos, vel, color, alpha, bounce=0.8, friction=0.9, decay=1, gravity=0.08):
+        self.particles.append([list(pos), list(vel), alpha, tuple(color), bounce, friction, decay, gravity])
     
     def update(self, screen, scroll):
         for particle in self.particles.copy():
             if particle[0] in self.game:
                 if abs(particle[1][0]) > 0.0005 or abs(particle[1][1]) > 0.0005:
                     particle[0][0] += particle[1][0] * self.game.dt
-                    if self.game.tile_map.solid_check(particle[0]):
+                    if self.game.world.tile_map.physics_map.solid_check(particle[0]):
                         particle[0][0] -= particle[1][0] * self.game.dt
                         particle[1][0] *= -particle[4]
                         particle[1][1] *= particle[5]
                     particle[1][1] += particle[7]
                     particle[0][1] += particle[1][1] * self.game.dt
-                    if self.game.tile_map.solid_check(particle[0]):
+                    if self.game.world.tile_map.physics_map.solid_check(particle[0]):
                         particle[0][1] -= particle[1][1] * self.game.dt
                         particle[1][1] *= -particle[4]
                         particle[1][0] *= particle[5]
@@ -142,14 +145,14 @@ class Particle:
         self.pos[0] += self.vel[0] * self.game.dt
         self.vel[0] += (self.vel[0] * self.friction.x - self.vel[0]) * self.game.dt
         if self.solid:
-            check = self.game.tile_map.solid_check(self.pos)
+            check = self.game.world.tile_map.physics_map.solid_check(self.pos)
             if check: 
                 self.pos[0] -= self.vel[0] * self.game.dt
                 self.vel[0] = 0
         self.pos[1] += self.vel[1] * self.game.dt
         self.vel[1] += (self.vel[1] * self.friction.y - self.vel[1]) * self.game.dt
         if self.solid:
-            check = self.game.tile_map.solid_check(self.pos)
+            check = self.game.world.tile_map.physics_map.solid_check(self.pos)
             if check:
                 self.done = True
                 self.vel[1] = 0

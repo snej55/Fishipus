@@ -34,6 +34,7 @@ class Pengine:
         self.right_clicking = False
         self.mouse_pos = []
         self.assets = {'game': GAME_ASSETS, 'edit': EDIT_ASSETS}
+        self.palettes = PALETTES
         self.running = True
         self.keys = {key: False for key in KEYS}
         self.tile_map = TileMap(self)
@@ -48,7 +49,11 @@ class Pengine:
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
         self.world = World(self)
+        self.world.gfx_manager.add_particle_system('kick_up', 'kickup')
         self.time = 0
+    
+    def __contains__(self, pos):
+        return self.scroll[0] <= pos[0] <= self.scroll[0] + self.world.window.screen.get_width() and self.scroll[1] <= pos[1] <= self.scroll[1] + self.world.window.screen.get_height()
     
     def load_level(self, path):
         return self.tile_map.load(path)

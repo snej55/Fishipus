@@ -52,6 +52,7 @@ class Entity:
         self.hurt_recovery = hurt_recovery
         self.hurt_flash = hurt_flash
         self.orig_anim_offset = pygame.Vector2(anim_offset)
+        self.hit = False
         self.gravity = 0.3
         self.outside = pygame.Vector2(0, 0)
         self.health = 10
