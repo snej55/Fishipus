@@ -29,6 +29,7 @@ class EntityManager:
                         entity.draw(surf, scroll)
                         self.entities_updated += 1
                         if kill:
+                            entity.die()
                             self.ents_frame[target_quad].pop(i)
                         elif not self.get_quad(entity.pos) is entity.quad:
                             self.get_quad(entity.pos).append(entity)
@@ -36,7 +37,7 @@ class EntityManager:
 
 #  Entity parent class
 class Entity:
-    def __init__(self, pos, dimensions, anim_offset, app, e_type, fiend=True, enemy=None, mask_collide_offset=None, hurt_recovery=1, hurt_flash=5):
+    def __init__(self, pos, dimensions, anim_offset, app, e_type, fiend=True, enemy=None, mask_collide_offset=None, hurt_recovery=1, hurt_flash=5, health=10):
         self.pos = pygame.Vector2(pos)
         self.dimensions = pygame.Vector2(dimensions)
         self.anim_offset = pygame.Vector2(anim_offset)
@@ -55,7 +56,7 @@ class Entity:
         self.hit = False
         self.gravity = 0.3
         self.outside = pygame.Vector2(0, 0)
-        self.health = 10
+        self.health = health
         self.platmode_collided = False
         self.falling = 99
         self.controls = {'up': False}
@@ -71,6 +72,9 @@ class Entity:
     
     def __getitem__(self, item):
         return self.__dict__[item]
+    
+    def die(self):
+        pass
     
     def get_colliding_ents(self, rect=None):
         entity_rect = rect if rect else self.rect()
@@ -106,7 +110,7 @@ class Entity:
         return getattr(self, attr)
     
     def palette(self):
-        return self.app.palettes[self.mode + '/' + self.state][math.floor(self.frames[self.state] % len(self.animation()))]
+        return self.app.palettes[self.mode + '/' + self.state][math.floor(self.frames[self.state] % len(self.animation()))][0]
 
     def sec(self):
         self.chk('collisions', {'left': False, 'right': False, 'up': False, 'down': False})

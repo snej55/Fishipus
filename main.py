@@ -13,7 +13,7 @@ class App(Pengine):
         })
         self.world.tile_map.load('data/maps/0.json')
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
-        self.blobbo = Blobbo((250, 100), (6, 7), (-1, -1), self, 'blobbo')
+        self.blobbo = [Blobbo((250 + i * 10, 100), (6, 7), (-1, -1), self, 'blobbo', health=5) for i in range(10)]
         self.world.window.set_camera_target(self.player)
 
     def update(self, screen, scroll):

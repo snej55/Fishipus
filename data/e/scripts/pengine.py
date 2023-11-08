@@ -49,7 +49,7 @@ class Pengine:
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
         self.world = World(self)
-        self.world.gfx_manager.add_particle_system('kick_up', 'kickup')
+        self.world.gfx_manager.add_particle_system('cinders', 'physics', explode=True, trail=True, bounce=0.4)
         self.time = 0
     
     def __contains__(self, pos):
@@ -109,4 +109,5 @@ class Pengine:
                 self.clock.tick(self.fps)
             else:
                 self.world.update(shade_uniforms={'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll})
+                self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt

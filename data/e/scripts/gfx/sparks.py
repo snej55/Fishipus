@@ -37,8 +37,8 @@ class Spark:
         self.loc[0] += movement[0] * dt
         self.loc[1] += movement[1] * dt
 
-        self.point_towards(math.pi / 2, 0.02, dt)
-        self.velocity_adjust(0.975, 0, 1, dt)
+        #self.point_towards(math.pi / 2, 0.02, dt)
+        #self.velocity_adjust(0.975, 0, 1, dt)
 
         self.speed -= self.decay * dt
 

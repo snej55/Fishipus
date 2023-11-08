@@ -50,9 +50,9 @@ class PhysicsParticles:
                     particle[2] -= (particle[2] / 20 + 0.0000001) * self.game.dt
                 if self.explode:
                     if random.random() / self.game.dt / min(1, particle[2]) < 0.01:
-                        self.game.particles.append(Particle(self.game, 'explode', (particle[0][0], particle[0][1] - 2), [(random.random() - 0.5) * 0.1, random.random() - 1], random.randint(3, 7) + 1))
+                        self.game.world.gfx_manager.particles.append(Particle(self.game, 'particle', (particle[0][0], particle[0][1] - 2), [(random.random() - 0.5) * 0.1, random.random() - 1], random.randint(3, 7) + 1))
                     if speed > 5:
-                        self.game.particles.append(Particle(self.game, 'particle', (particle[0][0], particle[0][1]), [0, 0], random.randint(2, 3)))
+                        self.game.world.gfx_manager.particles.append(Particle(self.game, 'particle', (particle[0][0], particle[0][1]), [0, 0], random.randint(2, 3)))
                 if particle[2] < 0:
                     self.particles.remove(particle)
             else:
@@ -113,7 +113,7 @@ class Particle:
         self.particle_type = particle_type
         self.pos = list(pos)
         self.vel = list(vel)
-        self.animation = self.game.assets['particle/' + self.particle_type].copy()
+        self.animation = self.game.assets['game']['particle/' + self.particle_type].copy()
         self.alpha = 255
         if self.particle_type == 'leaf':
             self.alpha = 100

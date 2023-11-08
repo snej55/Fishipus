@@ -159,6 +159,7 @@ class PhysicsTile:
         self.rect_offset = list(rect_offset)
         self.dimensions = list(dimensions)
         self.mode = mode
+        self.custom = bool(self.mode == 'custom')
         self.rect = pygame.Rect(self.pos.x + rect_offset[0], self.pos.y + rect_offset[1], dimensions[0], dimensions[1])
 
 class PhysicsTileMap:
@@ -183,11 +184,18 @@ class PhysicsTileMap:
     def solid_check(self, pos):
         tile_loc = str(math.floor(pos[0] // TILE_SIZE)) + ';' + str(math.floor(pos[1] // TILE_SIZE))
         if (tile_loc in self.tile_map):
+            if not self.tile_map[tile_loc].custom:
+                return True
             if self.tile_map[tile_loc].rect.collidepoint(pos[0], pos[1]):
                 return self.tile_map[tile_loc]
     
-    def tile_type_at(self, pos):
+    def particle_solid(self, pos):
         tile_loc = str(math.floor(pos[0] // TILE_SIZE)) + ';' + str(math.floor(pos[1] // TILE_SIZE))
+        if tile_loc in self.tile_map:
+            return True
+    
+    def tile_type_at(self, pos):
+        tile_loc = str(math.floor(pos[0] / TILE_SIZE)) + ';' + str(math.floor(pos[1] / TILE_SIZE))
         if tile_loc in self.tile_map:
             return self.tile_map[tile_loc].mode
     

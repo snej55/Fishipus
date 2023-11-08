@@ -53,14 +53,11 @@ def load_entity_assets(path, assets, name):
 
 def load_palette(img: pygame.Surface):
     img_array = pygame.pixelarray.PixelArray(img)
-    palette = {}
+    palette = []
     for row in img_array:
         for color in row:
             c = img.unmap_rgb(color)
-            if not (tuple(c) in palette):
-                palette[tuple(c)] = 1
-            else:
-                palette[tuple(c)] += 1
+            palette.append(tuple(c))
     return palette
 
 def load_palettes(assets):
