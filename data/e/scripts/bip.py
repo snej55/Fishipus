@@ -5,7 +5,7 @@ from typing import TypeAlias, Union
 Render: TypeAlias = list[str, tuple]
 Vector: TypeAlias = Union[list[float], pygame.Vector2, pygame.Vector3]
 
-SMOKE_DELAY = 2
+SMOKE_DELAY = 4
 CHUNK_SIZE = [10, 8]
 ENTITY_QUAD_SIZE = [2, 2]
 WATER_CHUNK_SIZE = [15, 15]

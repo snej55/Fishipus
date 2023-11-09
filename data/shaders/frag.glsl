@@ -3,6 +3,7 @@
 uniform sampler2D tex;
 // use a different noise texture e.g: different scale, detail, size, octaves, levels
 uniform sampler2D noise;
+uniform sampler2D alpha_surf; // smoke vfx... etc
 uniform float time;
 // scroll (obsolete)
 uniform vec2 camera;
@@ -17,6 +18,15 @@ uniform float stripeImpact = 0.03;
 uniform float stripeWidth = 60;
 // ---------------------
 uniform float threshold = 0.34; // size of hole
+
+vec4 bit_filter(vec4 color) {
+    vec4 bloom_color = color;
+    float alpha = (bloom_color.r + bloom_color.g + bloom_color.g) * 0.333;
+    if (alpha < 0.95) {
+        bloom_color.rgb = vec3(0.0, 0.0, 0.0);
+    } 
+    return bloom_color;
+}
 
 void main() {
     float centerDis = distance(vec2(0.5, 0.5), uvs);
@@ -67,5 +77,17 @@ void main() {
     }
     // vignait effect
     baseColor = baseColor - centerDis;
+    //bloom?
+    /*vec4 color = texture(tex, vec2(texCoords.x + 0.02, texCoords.y + 0.02));
+    baseColor += bit_filter(color) * 0.5;
+    color = texture(tex, vec2(texCoords.x - 0.02, texCoords.y + 0.02));
+    baseColor += bit_filter(color) * 0.5;
+    color = texture(tex, vec2(texCoords.x + 0.02, texCoords.y - 0.02));
+    baseColor += bit_filter(color) * 0.5;
+    color = texture(tex, vec2(texCoords.x - 0.02, texCoords.y - 0.02));
+    baseColor += bit_filter(color) * 0.5;
+    */
+    vec4 alpha_sample = texture(alpha_surf, texCoords);
+    baseColor += alpha_sample;
     f_color = vec4(baseColor.rgb, 1.0);
 }

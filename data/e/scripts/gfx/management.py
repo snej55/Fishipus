@@ -3,6 +3,7 @@ import pygame, math
 from typing import TypeAlias
 from data.e.scripts.gfx.particles import KickUp, PhysicsParticles, Particle
 from data.scripts.sword import Slash
+from data.e.scripts.bip import *
 
 ParticleList: TypeAlias = list[Particle]
 
@@ -40,21 +41,23 @@ class GFXManager:
         return surf.convert_alpha()
     
     def calc_smoke(self, smoke, scroll):
-        smoke[0][0] += smoke[1][0] * self.dt
-        smoke[0][1] += smoke[1][1] * self.dt
-        smoke[1][0] += (smoke[1][0] * 0.98 - smoke[1][0]) * self.dt
-        smoke[1][1] += (smoke[1][1] * 0.98 - smoke[1][1]) * self.dt
-        smoke[4] += (smoke[5] - smoke[4]) / 2 * self.dt
-        smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.dt)
-        smoke[2] += 0.2 * self.dt
+        smoke[0][0] += smoke[1][0] * self.app.dt
+        smoke[0][1] += smoke[1][1] * self.app.dt
+        smoke[1][0] += (smoke[1][0] * 0.98 - smoke[1][0]) * self.app.dt
+        smoke[1][1] += (smoke[1][1] * 0.98 - smoke[1][1]) * self.app.dt
+        smoke[4] += (smoke[5] - smoke[4]) / 2 * self.app.dt
+        smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.app.dt)
+        smoke[2] += 0.25 * self.app.dt
         surf = pygame.transform.rotate(self.alpha_surf([smoke[2], smoke[2]], smoke[3], smoke[6]), smoke[4])
+        surf.set_alpha(smoke[3])
+        surf.convert_alpha()
         if not smoke[3]:
             self.smoke.remove(smoke)
         return (surf, (smoke[0][0] - surf.get_width() * 0.5 - scroll.x, smoke[0][1] - surf.get_height() * 0.5 - scroll.y))
     
     def update(self, surf, scroll):
         for system in self.particle_systems:
-            self.particle_systems[system].update(surf, scroll)
+            self.particle_systems[system].update(self.app.world.window.alpha_surf, scroll)
         for particle in self.particles.copy():
             kill = particle.update()
             particle.draw(surf, scroll)
@@ -83,7 +86,7 @@ class GFXManager:
                 particle[1][1] += particle[5]
             particle[7].set_alpha(particle[3])
             if particle[0] in self.app:
-                surf.blit(particle[7], (particle[0][0] - scroll[0] - 0.5, particle[0][1] - scroll[1] - 0.5), special_flags=particle[10])
+                self.app.world.window.alpha_surf.blit(particle[7], (particle[0][0] - scroll[0] - 0.5, particle[0][1] - scroll[1] - 0.5), special_flags=particle[10])
             particle[3] -= particle[8] * self.app.dt
             if particle[3] < 50:
                 self.kick_up.pop(i)
@@ -101,7 +104,7 @@ class GFXManager:
             slash.draw(surf, scroll)
             if slash.animation.finished:
                 self.slashs.remove(slash)
-        surf.fblits([self.calc_smoke(smoke) for smoke in self.smoke.copy()])
+        self.app.world.window.alpha_surf.fblits([self.calc_smoke(smoke, scroll) for smoke in self.smoke.copy()])
         for shockwave in self.shockwaves.copy():
             pygame.draw.circle(surf, shockwave[2], (shockwave[0][0] - scroll.x, shockwave[0][1] - scroll.y), min(shockwave[4] * 1.5, shockwave[1] * 1.5), int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)))
             if shockwave[1] - 1 > shockwave[4]:

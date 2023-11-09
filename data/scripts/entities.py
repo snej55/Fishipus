@@ -33,9 +33,13 @@ class Blobbo(Entity):
     
     def die(self):
         self.app.world.tick.slomo = 0.01
-        self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 8)
+        self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 16)
         self.state = 'idle'
         palette = self.palette()
+        for _ in range(random.randint(30, 40)):
+            angle = random.random() * math.pi * 2
+            speed = random.random() + 1
+            self.app.world.gfx_manager.smoke.append([list(self.rect().center), [math.cos(angle) * speed, math.sin(angle) * speed], 1, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)])
         for _ in range(random.randint(10, 20)):
             angle = random.random() * math.pi * 2
             speed = random.random() * 5
@@ -54,7 +58,7 @@ class Blobbo(Entity):
         if not self.hit:
             if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
                 self.damage()
-                self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 2)
+                self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 4)
                 self.hit = True
                 self.app.world.tick.slomo = 0.6
                 state = self.state
@@ -65,7 +69,7 @@ class Blobbo(Entity):
                     angle = random.random() * math.pi * 2
                     vel = random.random() * 2 + 2
                     self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), random.choice(palette), random.randint(100, 200), friction=0.95)
-        elif not self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
+        elif not self.app.player.sword.slash:
             self.hit = False
         return super().update()
     

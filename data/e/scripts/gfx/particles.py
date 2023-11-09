@@ -19,6 +19,8 @@ class PhysicsParticles:
     
     def update(self, surf, scroll=(0, 0)):
         for particle in self.particles.copy():
+            if type(particle[3]) == tuple:
+                particle[3] = list(particle[3])
             if particle[0] in self.game:
                 speed = (abs(particle[1][0]) + abs(particle[1][1]))
                 particle[1][0] *= 0.999
@@ -45,7 +47,11 @@ class PhysicsParticles:
                 else:
                     pygame.draw.circle(surf, particle[3], (particle[0][0] - scroll[0], particle[0][1] - scroll[1]), particle[2] / 2)
                 if self.fade:
-                    particle[2] -= self.fade * self.game.dt
+                    particle[3][0] = max(particle[3][0] - self.fade * self.game.dt, 0)
+                    particle[3][1] = max(particle[3][1] - self.fade * self.game.dt, 0)
+                    particle[3][2] = max(particle[3][2] - self.fade * self.game.dt, 0)
+                    if particle[3][2] == 0 and particle[3][1] == 0 and particle[3][0] == 0:
+                        particle[2] = -1
                 else:
                     particle[2] -= (particle[2] / 20 + 0.0000001) * self.game.dt
                 if self.explode:
