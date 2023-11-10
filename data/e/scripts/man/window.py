@@ -7,7 +7,7 @@ from .camera import Camera
 class Window:
     def __init__(self, app, shaders={'frag': None, 'vert': None}):
         self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
-        self.display = pygame.display.set_mode(WIN_DIMENSIONS, flags=pygame.DOUBLEBUF | pygame.OPENGL)
+        self.display = pygame.display.set_mode(WIN_DIMENSIONS, flags=pygame.DOUBLEBUF | pygame.OPENGL | pygame.RESIZABLE)
         self.screen = pygame.Surface((self.display.get_width() / self.render_scale.x, self.display.get_height() / self.render_scale.y))
         self.alpha_surf = self.screen.copy()
         self.app = app#

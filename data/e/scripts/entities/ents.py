@@ -70,6 +70,9 @@ class Entity:
         offset = (pos[0] - self.pos.x, pos[1] - self.pos.y)
         return self.hurt_mask.overlap(mask, offset)
     
+    def distance_to(self, entity):
+        return self.pos.distance_to(entity.pos)
+    
     def __getitem__(self, item):
         return self.__dict__[item]
     

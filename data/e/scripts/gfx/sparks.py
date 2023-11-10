@@ -47,10 +47,10 @@ class Spark:
     def draw(self, surf, scroll):
         if not self.spinny:
             points = [
-                [self.loc[0] - scroll.x + math.cos(self.angle) * self.speed * self.scale, self.loc[1] - scroll.y + math.sin(self.angle) * self.speed * self.scale],
-                [self.loc[0] - scroll.x + math.cos(self.angle + math.pi / 2) * self.speed * self.scale * 0.3, self.loc[1] - scroll.y + math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.3],
-                [self.loc[0] - scroll.x - math.cos(self.angle) * self.speed * self.scale * 3.5, self.loc[1] - scroll.y - math.sin(self.angle) * self.speed * self.scale * 3.5],
-                [self.loc[0] - scroll.x + math.cos(self.angle - math.pi / 2) * self.speed * self.scale * 0.3, self.loc[1] - scroll.y - math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.3],
+                [self.loc[0] - scroll[0] + math.cos(self.angle) * self.speed * self.scale * 3, self.loc[1] - scroll[1] + math.sin(self.angle) * self.speed * self.scale * 3],
+                [self.loc[0] - scroll[0] + math.cos(self.angle + math.pi / 2) * self.speed * self.scale * 0.5, self.loc[1] - scroll[1] + math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5],
+                [self.loc[0] - scroll[0] - math.cos(self.angle) * self.speed * self.scale * 1, self.loc[1] - scroll[1] - math.sin(self.angle) * self.speed * self.scale * 1],
+                [self.loc[0] - scroll[0] + math.cos(self.angle - math.pi / 2) * self.speed * self.scale * 0.5, self.loc[1] - scroll[1] - math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5],
                 ]
         else:
             points = [

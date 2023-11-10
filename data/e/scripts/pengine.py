@@ -49,7 +49,7 @@ class Pengine:
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
         self.world = World(self)
-        self.world.gfx_manager.add_particle_system('cinders', 'physics', explode=True, trail=True, bounce=0.4, fade=0.5)
+        self.world.gfx_manager.add_particle_system('cinders', 'physics', explode=False, trail=True, bounce=0.4, fade=2)
         self.time = 0
     
     def __contains__(self, pos):

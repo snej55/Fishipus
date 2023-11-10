@@ -50,7 +50,7 @@ class Sword:
         self.attack_offset = (0, 0)
     
     def attack(self):
-        self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 1)
+        #self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 1)
         if self.target_dir == -math.pi * 0.25:
             self.target_dir = math.pi * 0.75
         else:

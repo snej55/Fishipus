@@ -32,7 +32,7 @@ class Blobbo(Entity):
         self.sec()
     
     def die(self):
-        self.app.world.tick.slomo = 0.01
+        self.app.world.tick.slomo = 0.00001
         self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 16)
         self.state = 'idle'
         palette = self.palette()
@@ -47,6 +47,8 @@ class Blobbo(Entity):
             self.app.world.gfx_manager.particle_systems['cinders'].append([list((self.rect().centerx, self.rect().bottom)), [math.cos(angle) * speed, math.sin(angle) * speed], random.randint(2, 20), (230, 215, 204)])
         for _ in range(random.randint(10, 20)):
             angle = random.random() * math.pi * 2
+            speed = random.random() + 1
+            self.app.world.gfx_manager.particles.append(Particle(self.app, 'particle', self.rect().center, [math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], random.randint(0, 7)))
             self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 2, (255, 255, 255), scale=0.5, decay=0.02))
         for _ in range(random.randint(120, 150)):
             angle = random.random() * math.pi * 2
@@ -55,6 +57,7 @@ class Blobbo(Entity):
         self.app.world.gfx_manager.shockwaves.append([list(self.rect().center), 0.01, (230, 215, 204), 1.2, 25])
     
     def update(self):
+        self.outside += (self.outside * 0.96 - self.outside) * self.app.dt
         if not self.hit:
             if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
                 self.damage()
@@ -65,10 +68,29 @@ class Blobbo(Entity):
                 self.state = 'idle'
                 palette = self.palette()
                 self.state = state
+                for _ in range(random.randint(1, 2)):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random()
+                    self.app.world.gfx_manager.smoke.append([list(self.rect().center), [math.cos(angle) * speed, math.sin(angle) * speed], 0.5, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)])
                 for _ in range(random.randint(5, 15)):
                     angle = random.random() * math.pi * 2
                     vel = random.random() * 2 + 2
                     self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), random.choice(palette), random.randint(100, 200), friction=0.95)
+                angle = random.random() * math.pi * 2
+                for _ in range(random.randint(5, 6)):
+                    angle += random.uniform(math.pi * 0.25, math.pi * 0.5)
+                    speed = random.random() + 1
+                    self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 1, (255, 255, 255), scale=0.5, decay=0.02))
+                dx = (self.app.player.pos.x - self.pos.x)
+                force = (16 - min(abs(dx), 16)) / 16
+                if dx == 0:
+                    dx = 0.00000000001
+                self.outside.x += -dx / abs(dx) * force
+                dy = (self.app.player.pos.y - self.pos.y)
+                force = (16 - min(abs(dy), 16)) / 16
+                if dy == 0:
+                    dy = 0.00001
+                self.outside.y += -dy / abs(dy) * force * 2
         elif not self.app.player.sword.slash:
             self.hit = False
         return super().update()

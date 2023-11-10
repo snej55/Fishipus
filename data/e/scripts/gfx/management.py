@@ -90,6 +90,8 @@ class GFXManager:
             particle[3] -= particle[8] * self.app.dt
             if particle[3] < 50:
                 self.kick_up.pop(i)
+        if len(self.kick_up) > 500:
+            self.kick_up[0][3] = max(0, self.kick_up[0][3] - 100)
         for impact in self.impact.copy():
             kill = impact.update(self.app.dt)
             if kill:
@@ -106,8 +108,14 @@ class GFXManager:
                 self.slashs.remove(slash)
         self.app.world.window.alpha_surf.fblits([self.calc_smoke(smoke, scroll) for smoke in self.smoke.copy()])
         for shockwave in self.shockwaves.copy():
-            pygame.draw.circle(surf, shockwave[2], (shockwave[0][0] - scroll.x, shockwave[0][1] - scroll.y), min(shockwave[4] * 1.5, shockwave[1] * 1.5), int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)))
+            pygame.draw.circle(self.app.world.window.alpha_surf, shockwave[2], (shockwave[0][0] - scroll.x, shockwave[0][1] - scroll.y), min(shockwave[4] * 1.5, shockwave[1] * 1.5), int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)))
             if shockwave[1] - 1 > shockwave[4]:
-                self.shockwaves.remove(shockwave)
+                if type(shockwave[2]) == tuple:
+                    shockwave[2] = list(shockwave[2])
+                shockwave[2][0] = max(shockwave[2][0] - 50 * self.app.dt, 0)
+                shockwave[2][1] = max(shockwave[2][1] - 50 * self.app.dt, 0)
+                shockwave[2][2] = max(shockwave[2][2] - 50 * self.app.dt, 0)
+                if shockwave[2][2] == 0 and shockwave[2][1] == 0 and shockwave[2][0] == 0:
+                    self.shockwaves.remove(shockwave)
             else:
                 shockwave[1] += max(0, min(20, 150 * (shockwave[4] * 0.01) / max(0.0001, shockwave[1] * 2))) * self.app.dt * shockwave[3]
