@@ -29,7 +29,7 @@ void main() {
 class MGL:
     def __init__(self, app, frag_path=None, vert_path=None):
         self.ctx = moderngl.create_context()
-        self.quad_buffer = self.ctx.buffer(data=array.array('f', [
+        self.vbo = self.ctx.buffer(data=array.array('f', [
                                         -1.0, 1.0, 0.0, 0.0,
                                         1.0, 1.0, 1.0, 0.0,
                                         -1.0, -1.0, 0.0, 1.0,
@@ -44,7 +44,7 @@ class MGL:
         self.program_vert = vert
         self.program_frag = self.ctx.program(vertex_shader=vert, fragment_shader=frag)
         self.temp_texs = []
-        self.render_objects = self.ctx.vertex_array(self.program_frag, [(self.quad_buffer, '2f 2f', 'vert', 'texcoord')])
+        self.render_objects = self.ctx.vertex_array(self.program_frag, [(self.vbo, '2f 2f', 'vert', 'texcoord')])
 
     def surf_to_texture(self, surf):
         tex = self.ctx.texture(surf.get_size(), 4)
