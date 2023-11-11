@@ -43,6 +43,28 @@ def load_spritesheet(path, name):
         x += dim[0]
     return imgs
 
+def read_f(path):
+    f = open(path, 'r')
+    data = f.read()
+    f.close()
+    return data
+
+def write_f(path, data):
+    f = open(path, 'w')
+    f.write(data)
+    f.close()
+
+def read_json(path):
+    f = open(path, 'r')
+    data = json.load(f)
+    f.close()
+    return data
+
+def write_json(path, data):
+    f = open(path, 'w')
+    json.dump(data, f)
+    f.close()
+
 def load_entity_assets(path, assets, name):
     for img_name in sorted(os.listdir(BASE_IMG_PATH + '/' + path)):
         aloc = img_name.split('.')[-1]
