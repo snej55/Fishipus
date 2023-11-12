@@ -1,8 +1,8 @@
 import pygame, math, random
 
-from data.e.scripts.gfx.particles import Particle
-from data.e.scripts.gfx.anim import Animation
-from data.e.scripts.bip import *
+from ..gfx.particles import Particle
+from ..gfx.anim import Animation
+from ..bip import *
 
 class EntityManager:
     def __init__(self, app):

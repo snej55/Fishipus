@@ -1,6 +1,6 @@
 import pygame, time, math
 from pygame.locals import *
-from data.e.scripts.tools.utils import *
+from ..utils import *
 
 class TextBox:
     def __init__(self, path, rect: pygame.Rect, text: str, border=2, anim=None, color=(255, 255, 255), width=0):

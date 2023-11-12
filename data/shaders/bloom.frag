@@ -1,6 +1,8 @@
 #version 330 core
 
 uniform sampler2D image;
+uniform sampler2D alpha_surf;
+uniform sampler2D surf;
 
 uniform float weight[7] = float[] (0.227027, 0.2, 0.17, 0.1216216, 0.08, 0.03, 0.016216);
 
@@ -16,18 +18,18 @@ vec4 bitFilter(vec4 color) {
     return bloom_color;
 }
 
+vec4 sampleTex(vec2 coords) {
+    return bitFilter(texture(image, coords) + texture(alpha_surf, coords));
+}
+
 void main() {
     vec2 tex_offset = 0.5 / textureSize(image, 0) * 0.5;
-    vec3 result = texture(image, uvs).rgb * weight[0];
+    vec3 result = bitFilter(texture(image, uvs) + texture(alpha_surf, uvs)).rgb * weight[0];
     for (int i = 1; i < 7; i++) {
-        result += bitFilter(texture(image, uvs + vec2(tex_offset.x * i, 0.0))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs - vec2(tex_offset.x * i, 0.0))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs + vec2(0.0, tex_offset.y * i))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs - vec2(0.0, tex_offset.x * i))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs + vec2(tex_offset.x * i, tex_offset.y * i))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs - vec2(tex_offset.x * i, tex_offset.x * i))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs + vec2(0.0, 0.0))).rgb * weight[i];
-        result += bitFilter(texture(image, uvs - vec2(0.0, 0.0))).rgb * weight[i];
+        result += sampleTex(uvs + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+        result += sampleTex(uvs - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+        result += sampleTex(uvs + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+        result += sampleTex(uvs - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
     }
-    f_color = vec4(result, 1.0);
+    f_color = vec4(result + texture(surf, uvs).rgb, 1.0);
 }

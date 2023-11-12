@@ -1,9 +1,9 @@
 import pygame
 from .window import Window
 from .fps import Tick
-from data.e.scripts.env.tiles import TileMap
-from data.e.scripts.entities.ents import EntityManager
-from data.e.scripts.gfx.management import GFXManager
+from ..env.tiles import TileMap
+from ..entities.ents import EntityManager
+from ..gfx.management import GFXManager
 
 class World:
     def __init__(self, app):
@@ -21,6 +21,6 @@ class World:
         self.app.update(screen, scroll)
         self.gfx_manager.update(screen, scroll)
         pygame.display.set_caption(f'{self.app.title} at {self.tick.clock.get_fps() :.0f} FPS')
-        self.window.shade(shade_uniforms)#, dest={'bloom': self.window.mgl.surf_to_texture(self.window.display)})
+        self.window.shade(shade_uniforms)
         self.window.inflate(scale=1.0)
         self.tick.update()

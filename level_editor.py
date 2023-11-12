@@ -1,16 +1,42 @@
-import pygame, math
+'''WARNING: This will be some of the *stinkiest* code you will ever edit. Use at own risk...'''
 
-from data.e.scripts.pengine import Pengine
+import pygame, math, time, sys
+
 from data.e.scripts.bip import *
+from data.e.scripts.assets import *
 from data.e.scripts.tools.ui.box import Box
 from data.e.scripts.env.tiles import TileMap, Layer, Tile, PhysicsTile
 from data.e.scripts.tools.ui.texto import TextBox, Font
 
 PHYSICS_MODES = ['block', 'danger']
 
-class Editor(Pengine):
-    def __init__(self):
-        super().__init__(mode='edit')
+class Editor():
+    def __init__(self, config={}):
+        self.config = config
+        self.mode = 'edit'
+        self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
+        self.display = pygame.display.set_mode(WIN_DIMENSIONS)
+        self.screen = pygame.Surface((self.display.get_width() / self.render_scale.x, self.display.get_height() / self.render_scale.y))
+        self.clock = pygame.time.Clock()
+        self.dt = 1
+        self.title = 'pge window'
+        if 'caption' in self.config:
+            self.title = self.config['caption']
+        self.last_time = time.time() - 1 / 60
+        self.tile_size = TILE_SIZE
+        self.chunk_size = pygame.Vector2(CHUNK_SIZE)
+        self.auto_tile_types = AUTO_TILE_TYPES
+        self.physics_tile_types = PHYSICS_TILE_TYPES
+        self.entity_quad_size = ENTITY_QUAD_SIZE
+        self.danger = DANGER
+        self.scrolling = 0
+        self.running = True
+        self.render_scroll = [0, 0]
+        self.screen_shake = 0
+        self.clicking = False
+        self.right_clicking = False
+        self.mouse_pos = []
+        self.assets = {'game': GAME_ASSETS, 'edit': EDIT_ASSETS}
         self.tile_variant = 0
         self.tile_group = 0
         self.tile_list = list(self.assets['edit'])
@@ -31,6 +57,13 @@ class Editor(Pengine):
         self.lry_panel_scroll = 0
         self.lyrs = 0
         self.auto_tiling = False
+        self.time = 0
+        self.palettes = PALETTES
+        self.running = True
+        self.keys = {key: False for key in KEYS}
+        self.toggles = {}
+        self.fps = 0
+        self.scroll = pygame.Vector2(0, 0)
         self.panel_scroll = -10
         self.panel_tile_dim = [0, 0]
         self.physics_mode = 0
@@ -42,6 +75,18 @@ class Editor(Pengine):
         self.tile_select_pos = (0, 0)
         self.tile_select_map = {}
         #print([self.tile_map.physics_map.tile_map[loc].pos for loc in self.tile_map.physics_map.tile_map])
+    
+    def __contains__(self, pos):
+        return self.scroll[0] <= pos[0] <= self.scroll[0] + self.world.window.screen.get_width() and self.scroll[1] <= pos[1] <= self.scroll[1] + self.world.window.screen.get_height()
+    
+    def load_level(self, path):
+        return self.tile_map.load(path)
+    
+    def close(self):
+        self.running = False
+        print('closing')
+        pygame.quit()
+        sys.exit()
     
     def draw_grid(self, scroll, size, color):
         tile_size = [self.tile_size * size[0], self.tile_size * size[1]]
@@ -151,6 +196,7 @@ class Editor(Pengine):
         self.screen.blit(panel_surf, (self.screen.get_width() * 0.9, 20))
     
     def update(self):
+        self.screen.fill((0, 0, 0))
         if not self.keys[pygame.K_RCTRL]:
             self.scroll[0] += (self.keys[pygame.K_d] - self.keys[pygame.K_a]) * 2
             self.scroll[1] += (self.keys[pygame.K_s] - self.keys[pygame.K_w]) * 2
@@ -250,6 +296,42 @@ class Editor(Pengine):
                     if loc in self.tile_map.physics_map.tile_map:
                         del self.tile_map.physics_map.tile_map[loc]
         self.text.render(self.screen, f'FPS: {self.clock.get_fps() :.1f}', (280, 5))
+        pygame.transform.scale_by(self.screen, self.render_scale, self.display)
+        pygame.display.set_caption(f'{self.title} at {self.clock.get_fps() :.0f} FPS')
+        pygame.display.flip()
+        self.clock.tick(60)
+    
+    def run(self):
+        while self.running:
+            self.time += 1 * self.dt
+            self.mouse_pos = list(n / self.render_scale[i] for i, n in enumerate(pygame.mouse.get_pos()))
+            self.toggles = set([])
+            self.scrolling = 0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.close()
+                if event.type == pygame.KEYDOWN:
+                    self.keys[event.key] = True
+                    self.toggles.add(event.key)
+                if event.type == pygame.KEYUP:
+                    self.keys[event.key] = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.clicking = True
+                    if event.button == 3:
+                        self.right_clicking = True
+                    if event.button == 4:
+                        self.scrolling = -1
+                    if event.button == 5:
+                        self.scrolling = 1
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.clicking = False
+                    if event.button == 3:
+                        self.right_clicking = False
+            if self.keys[pygame.K_ESCAPE]:
+                self.close()
+            self.update()
 
 if __name__ == '__main__':
-    Editor('data/e/init/init.json').run()
+    Editor().run()

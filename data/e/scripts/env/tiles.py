@@ -1,8 +1,8 @@
 import pygame, json, math
 
-from data.e.scripts.tools.utils import alpha_surf
-from data.e.scripts.env.chunks import TileChunker
-from data.e.scripts.bip import *
+from ..tools.utils import alpha_surf
+from .chunks import TileChunker
+from ..bip import *
 
 class Tile:
     def __init__(self, pos, dimensions, rect_offset, mode: str, variant: int, img: pygame.Surface, key=None, grid=False, render_scale=1.0):

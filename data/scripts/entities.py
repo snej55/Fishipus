@@ -50,10 +50,11 @@ class Blobbo(Entity):
             speed = random.random() + 1
             self.app.world.gfx_manager.particles.append(Particle(self.app, 'particle', self.rect().center, [math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], random.randint(0, 7)))
             self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 2, (255, 255, 255), scale=0.5, decay=0.02))
-        for _ in range(random.randint(120, 150)):
+        for i in range(random.randint(120, 150)):
             angle = random.random() * math.pi * 2
             vel = random.random() * 2 + 2
             self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel * 0.25, math.sin(angle) * vel * 2), random.choice(palette), random.randint(100, 200), friction=0.95, flags=pygame.BLEND_RGBA_ADD)
+            if i % 3 == 0: self.app.world.gfx_manager.add_glow_dust(self.rect().center, (math.cos(angle) * vel * 0.2, math.sin(angle) * vel * 1.5), random.choice([(236, 171, 17), (114, 13, 13), (239, 110, 16)]), random.randint(100, 200), friction=0.95, bounce=0.5, flags=pygame.BLEND_RGBA_ADD)
         self.app.world.gfx_manager.shockwaves.append([list(self.rect().center), 0.01, (230, 215, 204), 1.2, 25])
     
     def update(self):

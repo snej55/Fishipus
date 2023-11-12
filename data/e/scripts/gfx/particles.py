@@ -58,13 +58,18 @@ class PhysicsParticles:
                     particle[2] -= (particle[2] / 20 + 0.0000001) * self.game.dt
                 if self.explode:
                     if random.random() / self.game.dt / min(1, particle[2]) < 0.01:
-                        self.game.world.gfx_manager.particles.append(Particle(self.game, 'particle', (particle[0][0], particle[0][1] - 2), [(random.random() - 0.5) * 0.1, random.random() - 1], random.randint(3, 7) + 1))
+                        angle = random.random() * math.pi * 2
+                        speed = random.random()
+                        self.game.world.gfx_manager.smoke.append([list((particle[0][0], particle[0][1])), [math.cos(angle) * speed, math.sin(angle) * speed], 0.5, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)])
                     if speed > 5:
                         self.game.world.gfx_manager.particles.append(Particle(self.game, 'particle', (particle[0][0], particle[0][1]), [0, 0], random.randint(2, 3)))
+            
                 if particle[2] < 0:
                     self.particles.remove(particle)
             else:
                 particle[2] -= 0.005 * self.game.dt
+                if particle[2] < 0:
+                    self.particles.remove(particle)
 
 class KickUp:
     def __init__(self, game, friction=0.9, bounce=0.8, gravity=0.24, decay=0.005):

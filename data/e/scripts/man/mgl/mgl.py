@@ -1,6 +1,6 @@
 import moderngl, array, pygame
 
-from data.e.scripts.tools.utils import read_f
+from ...tools.utils import read_f
 
 default_vert = """
 #version 330 core
@@ -69,6 +69,9 @@ class MGL:
         tex.swizzle = 'BGRA'
         tex.write(surf.get_view('1'))
         return tex
+    
+    def texture_to_surf(self, texture, dim, mode='RGBA'):
+        return pygame.image.frombytes(texture.read(), dim, mode)
 
 class RenderObject:
     def __init__(self, app, mgl, frag_shader, vert_shader=None, vao_args=['2f 2f', 'vert', 'texcoord'], buffer=None, default_ro=False):

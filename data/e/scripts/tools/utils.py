@@ -1,6 +1,6 @@
 import pygame, math, os, json
 
-from data.e.scripts.bip import *
+from ..bip import *
 
 def load_img(path, scale=(1, 1)):
     img = pygame.transform.scale_by(pygame.image.load(BASE_IMG_PATH + '/' + path).convert(), scale)

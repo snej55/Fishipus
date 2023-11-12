@@ -1,16 +1,16 @@
 import pygame, sys, time, json
 
-from data.e.scripts.init import *
-from data.e.scripts.bip import *
-from data.e.scripts.assets import *
-from data.e.scripts.gfx.management import GFXManager
-from data.e.scripts.man.camera import Camera
-from data.e.scripts.man.window import Window
-from data.e.scripts.env.tiles import TileMap
-from data.e.scripts.entities.ents import EntityManager
-from data.e.scripts.man.world import World
+from .init import *
+from .bip import *
+from .assets import *
+from .gfx.management import GFXManager
+from .man.camera import Camera
+from .man.window import Window
+from .env.tiles import TileMap
+from .entities.ents import EntityManager
+from .man.world import World
 
-class Pengine:
+class Pygmy:
     def __init__(self, mode='game', config={}):
         self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
         self.config = config
@@ -49,7 +49,7 @@ class Pengine:
         self.camera = self.window.camera
         self.scroll = self.camera.scroll
         self.world = World(self)
-        self.world.gfx_manager.add_particle_system('cinders', 'physics', explode=False, trail=True, bounce=0.4, fade=2)
+        self.world.gfx_manager.add_particle_system('cinders', 'physics', explode=True, trail=True, bounce=0.4, fade=2)
         self.time = 0
     
     def __contains__(self, pos):
@@ -98,18 +98,11 @@ class Pengine:
             if self.keys[pygame.K_ESCAPE]:
                 self.close()
             if self.mode == 'edit':
-                self.render_scroll = self.camera.update()
-                self.tile_map.draw(self.screen, self.render_scroll)
                 self.update()
-                self.entity_manager.update(self.screen, self.render_scroll)
-                self.gfx_manager.update(self.screen, self.render_scroll)
-                pygame.transform.scale_by(self.screen, self.render_scale, self.display)
-                pygame.display.set_caption(self.title + ' at ' f'{self.clock.get_fps() :.1f} FPS!')
-                pygame.display.flip()
-                self.clock.tick(self.fps)
             else:
-                self.world.update(shade_uniforms={'background': {'tex': self.world.window.screen, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf},
-                                                    'default': {'tex': self.world.window.screen},
-                                                    'bloom': {'image': self.world.window.screen}})
+                screen_tex = self.world.window.mgl.surf_to_texture(self.world.window.screen)
+                screen_tex.repeat_x = False
+                screen_tex.repeat_y = False
+                self.world.update(shade_uniforms={'background': {'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
                 self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt

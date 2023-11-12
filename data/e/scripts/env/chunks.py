@@ -1,6 +1,6 @@
 import pygame, math
 
-from data.e.scripts.tools.utils import load_chunks
+from ..tools.utils import load_chunks
 
 class TileChunker:
     def __init__(self, tiles, chunk_size, tile_size):

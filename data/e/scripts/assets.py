@@ -1,7 +1,7 @@
 import pygame
 
-from data.e.scripts.tools.utils import *
-from data.e.scripts.bip import *
+from .tools.utils import *
+from .bip import *
 
 GAME_ASSETS = {'large_decor': load_tile_imgs('decor/large_decor.png', 32),
                'gras': load_spritesheet('grass', 'grass'),

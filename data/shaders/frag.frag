@@ -4,6 +4,7 @@ uniform sampler2D tex;
 // use a different noise texture e.g: different scale, detail, size, octaves, levels
 uniform sampler2D noise;
 uniform sampler2D alpha_surf; // smoke vfx... etc
+//uniform sampler2D bloom_tex;
 uniform float time;
 // scroll (obsolete)
 uniform vec2 camera;
@@ -16,8 +17,22 @@ uniform float timeScale = 0.00025;  // time speed
 uniform float angleConst = 1.5;
 uniform float stripeImpact = 0.03;
 uniform float stripeWidth = 60;
+uniform float weight[7] = float[] (0.227027, 0.2, 0.17, 0.1216216, 0.08, 0.03, 0.016216);
 // ---------------------
 uniform float threshold = 0.34; // size of hole
+
+vec4 bitFilter(vec4 color) {
+    vec4 bloom_color = color;
+    float alpha = (bloom_color.r + bloom_color.g + bloom_color.g) * 0.333;
+    if (alpha < 0.95) {
+        bloom_color.rgb = vec3(0.0, 0.0, 0.0);
+    } 
+    return bloom_color;
+}
+
+vec4 sampleTex(vec2 coords) {
+    return bitFilter(texture(tex, coords) + texture(alpha_surf, coords));
+}
 
 void main() {
     float centerDis = distance(vec2(0.5, 0.5), uvs);
@@ -80,5 +95,16 @@ void main() {
     */
     vec4 alpha_sample = texture(alpha_surf, texCoords);
     baseColor += alpha_sample;
+    //vec4 bloom_sample = texture(bloom_tex, texCoords);
+    //baseColor = bloom_sample;
+    vec2 tex_offset = 0.5 / textureSize(tex, 0) * 0.5;
+    vec3 result = bitFilter(texture(tex, texCoords) + texture(alpha_surf, texCoords)).rgb * weight[0];
+    for (int i = 1; i < 7; i++) {
+        result += sampleTex(texCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+        result += sampleTex(texCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+        result += sampleTex(texCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+        result += sampleTex(texCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+    }
+    baseColor.rgb += result;
     f_color = vec4(baseColor.rgb, 1.0);
 }
