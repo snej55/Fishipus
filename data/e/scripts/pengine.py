@@ -108,6 +108,8 @@ class Pengine:
                 pygame.display.flip()
                 self.clock.tick(self.fps)
             else:
-                self.world.update(shade_uniforms={'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf})
+                self.world.update(shade_uniforms={'background': {'tex': self.world.window.screen, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf},
+                                                    'default': {'tex': self.world.window.screen},
+                                                    'bloom': {'image': self.world.window.screen}})
                 self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt

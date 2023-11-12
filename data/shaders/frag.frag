@@ -19,15 +19,6 @@ uniform float stripeWidth = 60;
 // ---------------------
 uniform float threshold = 0.34; // size of hole
 
-vec4 bit_filter(vec4 color) {
-    vec4 bloom_color = color;
-    float alpha = (bloom_color.r + bloom_color.g + bloom_color.g) * 0.333;
-    if (alpha < 0.95) {
-        bloom_color.rgb = vec3(0.0, 0.0, 0.0);
-    } 
-    return bloom_color;
-}
-
 void main() {
     float centerDis = distance(vec2(0.5, 0.5), uvs);
     centerDis = centerDis * centerDis * centerDis * centerDis * 0.2;
