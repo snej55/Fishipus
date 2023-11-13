@@ -53,7 +53,7 @@ class Blobbo(Entity):
         for i in range(random.randint(120, 150)):
             angle = random.random() * math.pi * 2
             vel = random.random() * 2 + 2
-            self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel * 0.25, math.sin(angle) * vel * 2), random.choice(palette), random.randint(100, 200), friction=0.95, flags=pygame.BLEND_RGBA_ADD)
+            self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel * 0.25, math.sin(angle) * vel * 2), random.choice(palette), random.randint(100, 200), friction=0.95, flags=pygame.BLEND_RGBA_ADD, bounce=0.5)
             if i % 3 == 0: self.app.world.gfx_manager.add_glow_dust(self.rect().center, (math.cos(angle) * vel * 0.2, math.sin(angle) * vel * 1.5), random.choice([(236, 171, 17), (114, 13, 13), (239, 110, 16)]), random.randint(100, 200), friction=0.95, bounce=0.5, flags=pygame.BLEND_RGBA_ADD)
         self.app.world.gfx_manager.shockwaves.append([list(self.rect().center), 0.01, (230, 215, 204), 1.2, 25])
     
@@ -76,12 +76,12 @@ class Blobbo(Entity):
                 for _ in range(random.randint(5, 15)):
                     angle = random.random() * math.pi * 2
                     vel = random.random() * 2 + 2
-                    self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), random.choice(palette), random.randint(100, 200), friction=0.95)
+                    self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel, math.sin(angle) * vel), random.choice(palette), random.randint(100, 200), friction=0.95, bounce=0.5)
                 angle = random.random() * math.pi * 2
                 for _ in range(random.randint(5, 6)):
                     angle += random.uniform(math.pi * 0.25, math.pi * 0.5)
                     speed = random.random() + 1
-                    self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 1, (255, 255, 255), scale=0.5, decay=0.02))
+                    self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 1, (255, 255, 255), scale=1, decay=0.02))
                 dx = (self.app.player.pos.x - self.pos.x)
                 force = (16 - min(abs(dx), 16)) / 16
                 if dx == 0:
