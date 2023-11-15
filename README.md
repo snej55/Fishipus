@@ -1,4 +1,4 @@
-# Fishipus (name not certain yet)
+# Fishipus (no name yet :\ Pygmy?)
 This project is meant to provide a framework for projects involving pygame, so half of the time isn't spent rewriting and modifying old code from previous projects. However, it has been adapted to my use case so (if this becomes public) it would be better to write your own instead of using mine.
 
 # What will it do?
