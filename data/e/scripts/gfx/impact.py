@@ -11,7 +11,7 @@ class Impact:
     def update(self, dt):
         self.pos[0] += math.cos(self.angle) * self.speed * dt
         self.pos[1] += math.sin(self.angle) * self.speed * dt
-        self.speed -= 0.01 * dt
+        self.speed -= 0.1 * dt
         return self.speed < 0
     
     def draw(self, surf, scroll=(0, 0)):

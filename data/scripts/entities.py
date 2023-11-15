@@ -12,6 +12,7 @@ class Player(PlayerBase):
         self.sword = Sword(self.app, self.pos, self, offset=(-1, -6))
     
     def update(self, *args):
+        self.outside += (self.outside * 0.96 - self.outside) * self.app.dt
         if (pygame.K_x in self.app.toggles or pygame.K_z in self.app.toggles)and self.sword.attacked > 10:
             self.sword.attack()
         self.sword.update()
@@ -33,7 +34,10 @@ class Blobbo(Entity):
     
     def die(self):
         self.app.world.tick.slomo = 0.00001
-        self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 16)
+        self.app.world.window.camera.add_screen_shake(6)
+        #angle = math.atan2(-self.app.player.pos.y + self.pos.y, self.app.player.pos.x - self.pos.x)
+        #dis = math.sqrt((self.app.player.pos.y - self.pos.y) ** 2 + (self.app.player.pos.x - self.pos.x) ** 2) ** 3 * 0.1
+        #self.app.player.outside = -pygame.Vector2(math.sin(angle) / dis * 50, math.cos(angle) / dis * 50)
         self.state = 'idle'
         palette = self.palette()
         for _ in range(random.randint(30, 40)):
@@ -50,7 +54,7 @@ class Blobbo(Entity):
             speed = random.random() + 1
             self.app.world.gfx_manager.particles.append(Particle(self.app, 'particle', self.rect().center, [math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], random.randint(0, 7)))
             self.app.world.gfx_manager.sparks.append(Spark(self.rect().center, angle, random.random() + 2, (255, 255, 255), scale=0.5, decay=0.02))
-        for i in range(random.randint(120, 150)):
+        for i in range(random.randint(70, 100)):
             angle = random.random() * math.pi * 2
             vel = random.random() * 2 + 2
             self.app.world.gfx_manager.add_kickup(self.rect().center, (math.cos(angle) * vel * 0.25, math.sin(angle) * vel * 2), random.choice(palette), random.randint(100, 200), friction=0.95, flags=pygame.BLEND_RGBA_ADD, bounce=0.5)
@@ -62,9 +66,9 @@ class Blobbo(Entity):
         if not self.hit:
             if self.collide_mask(self.app.player.sword.attack_mask, self.app.player.sword.attack_offset):
                 self.damage()
-                self.app.world.window.camera.screen_shake = max(self.app.world.window.camera.screen_shake, 4)
+                self.app.world.window.camera.add_screen_shake(3.5)
                 self.hit = True
-                self.app.world.tick.slomo = 0.6
+                self.app.world.tick.slomo = 0.5
                 state = self.state
                 self.state = 'idle'
                 palette = self.palette()

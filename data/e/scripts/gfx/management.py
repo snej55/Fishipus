@@ -94,7 +94,7 @@ class GFXManager:
                     particle[1][0] *= particle[6]
                 if abs(particle[1][0]) < 0.03 and abs(particle[1][1]) < 0.03:
                     particle[9] += 1 * self.app.dt
-                particle[1][1] += particle[5]
+                particle[1][1] += particle[5] * self.app.dt
             for c in particle[2]:
                 c = particle[3]
             if particle[0] in self.app:
@@ -118,7 +118,7 @@ class GFXManager:
                     particle[1][0] *= particle[6]
                 if abs(particle[1][0]) < 0.03 and abs(particle[1][1]) < 0.03:
                     particle[9] += 1 * self.app.dt
-                particle[1][1] += particle[5]
+                particle[1][1] += particle[5] * self.app.dt
             if particle[0] in self.app:
                 radius = particle[3] / 255 * 4
                 self.app.world.window.alpha_surf.blit(self.circle_surf(radius, particle[7]), (particle[0][0] - radius * 0.5 - scroll[0] - 0.5, particle[0][1] - radius * 0.5 - scroll[1] - 0.5), special_flags=pygame.BLEND_RGBA_ADD)

@@ -60,7 +60,7 @@ class Pygmy:
     
     def close(self):
         self.running = False
-        print('closing')
+        pygame.display.quit()
         pygame.quit()
         sys.exit()
     
