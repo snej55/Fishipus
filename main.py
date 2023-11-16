@@ -4,6 +4,7 @@ import data.e.scripts as e
 from data.e.scripts.env.tiles import *
 from data.scripts.entities import Player, Blobbo
 from data.scripts.sword import Sword
+from data.e.scripts.entities.paths import PathFinder
 
 class App(e.Pygmy):
     def __init__(self):
@@ -15,10 +16,12 @@ class App(e.Pygmy):
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
         self.blobbo = [Blobbo((250 + i * 10, 100), (6, 7), (-1, -1), self, 'blobbo', health=5) for i in range(30)]
         self.world.window.set_camera_target(self.player)
+        self.path_finder = PathFinder(self)
 
     def update(self, screen, scroll):
         self.player.update()
         self.player.draw(screen, scroll)
+        self.path_finder.draw(screen, scroll)
 
 if __name__ == '__main__':
     App().run()

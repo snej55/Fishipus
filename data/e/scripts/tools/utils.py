@@ -24,6 +24,9 @@ def load_tile_assets(path, assets, tile_size):
         assets[tile_type] = tile_imgs
     return assets.copy()
 
+def key(pos, dim):
+    return str(math.floor(pos[0] / dim[0])) + ';' + str(math.floor(pos[1] / dim[1]))
+
 def load_audio(path):
     tracks = []
     for track_name in sorted(os.listdir(BASE_AUDIO_PATH + '/' + path)):

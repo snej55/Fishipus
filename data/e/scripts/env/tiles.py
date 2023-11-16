@@ -189,6 +189,11 @@ class PhysicsTileMap:
             if self.tile_map[tile_loc].rect.collidepoint(pos[0], pos[1]):
                 return self.tile_map[tile_loc]
     
+    def block_check(self, pos):
+        tile_loc = str(math.floor(pos[0] // TILE_SIZE)) + ';' + str(math.floor(pos[1] // TILE_SIZE))
+        if tile_loc in self.tile_map:
+            return self.tile_map[tile_loc].mode == 'block'
+    
     def particle_solid(self, pos):
         tile_loc = str(math.floor(pos[0] // TILE_SIZE)) + ';' + str(math.floor(pos[1] // TILE_SIZE))
         if tile_loc in self.tile_map:
