@@ -32,9 +32,6 @@ class GFXManager:
         self.kick_up.append([list(pos), list(vel), list(color), alpha, bounce, gravity, friction, None, decay, 0, flags])
     
     def add_glow_dust(self, pos, vel, color, alpha, bounce=0.7, gravity=0.1, friction=0.999, decay=1, flags=0):
-        surf = pygame.Surface((1, 1))
-        surf.fill(color)
-        surf.convert()
         self.glow_dust.append([list(pos), list(vel), tuple(color), alpha, bounce, gravity, friction, color, decay, 0, flags])
 
     @staticmethod
