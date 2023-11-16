@@ -27,7 +27,9 @@ def ease_inout_quad(t, b, c, d):
         return c * 0.5 * t * t + b
     return -c * 0.5 * ((t - 1) * (t - 2) - 1) + b
 
+def direction_to(p1, p2) -> float: # returns direction to point in radians
+    return math.atan2(-p1[1] + p2[1], p1[0] - p2[0])  # this needs to account for pygame coordinate system, hence -y
+
 def trix_mult(grid, multiplier):
     return [[[grid[y][x][0] * multiplier[0] + grid[y][x][1] * multiplier[1], grid[y][x][0] * multiplier[2] + grid[y][x][1] * multiplier[3]] for x, point in enumerate(row)] for y, row in enumerate(grid)] 
-
-print(area_irreg_polygon([(-3, -2), (-1, 4), (6, 1), (3, 10), (-4, 9)]))
+    
