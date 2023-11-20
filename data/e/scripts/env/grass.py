@@ -67,13 +67,13 @@ class GrassTile:
         self.go_grass = False
 
     def wind(self):
-        return max(-90, min(90, self.manager.wind + math.sin(self.pos[0]) * 25))
+        return max(-90, min(90, self.manager.wind(self.manager.app.time + math.sin(self.pos[0] * 0.5) * 25)))
     
     def update(self, rect, dt):
         for blade in self.grass:
             if not self.go_grass:
                 blade.angle = self.wind()
-            blade.update(self.manager.wind, rect, dt)
+            blade.update(self.wind(), rect, dt)
         self.updated = True
         self.go_grass = True
     
@@ -128,7 +128,6 @@ class GrassAssets:
 
 class GrassManager:
     def __init__(self, app, grass_imgs):
-        self.wind = 0
         self.grass_assets = GrassAssets(app, self)
         self.grass_imgs = grass_imgs
         self.app = app
@@ -179,9 +178,13 @@ class GrassManager:
             for tile in self.get_grass_tiles(rect.center):
                 tile.update(rect, self.app.dt)
     
+    @staticmethod
+    def wind(time):
+        wind = math.sin(time * 0.05) * 30 + math.sin(time * 0.1) * 5 + math.cos(time * 0.3) * 10 + abs(math.sin(time * 0.2)) * 20 + 30
+        wind += (0 - wind) * 0.6
+        return wind
+    
     def draw(self, surf, scroll=(0, 0)):
-        self.wind = math.sin(self.app.time * 0.05) * 30 + math.sin(self.app.time * 0.1) * 5 + math.cos(self.app.time * 0.3) * 10 + abs(math.sin(self.app.time * 0.2)) * 20 + 30
-        self.wind += (0 - self.wind) * 0.6
         for x in range(math.floor(scroll[0] / TILE_SIZE), math.floor((scroll[0] + surf.get_width()) / TILE_SIZE + 1)):
             for y in range(math.floor(scroll[1] / TILE_SIZE), math.floor((scroll[1] + surf.get_height()) / TILE_SIZE + 1)):
                 loc = str(x - 1) + ';' + str(y - 1)
