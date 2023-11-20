@@ -9,6 +9,7 @@ class EntityManager:
         self.app = app
         self.ents_frame = {}
         self.entities_updated = 0
+        self.entity_rects = []
     
     def get_quad(self, pos):
         loc = str(int(pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0])) + ';' + str(int(pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]))
@@ -18,6 +19,7 @@ class EntityManager:
     
     def update(self, surf, scroll):
         self.entities_updated = 0
+        self.entity_rects = []
         for y in range(math.ceil(surf.get_height() / (ENTITY_QUAD_SIZE[1] * TILE_SIZE)) + 2):
             for x in range(math.ceil(surf.get_width() / (ENTITY_QUAD_SIZE[0] * TILE_SIZE)) + 2):
                 target_x = x - 2 + math.ceil(int(scroll[0]) / (ENTITY_QUAD_SIZE[0] * TILE_SIZE))
@@ -28,12 +30,15 @@ class EntityManager:
                         kill = entity.update()
                         entity.draw(surf, scroll)
                         self.entities_updated += 1
+                        self.entity_rects.append(entity.rect())
                         if kill:
                             entity.die()
                             self.ents_frame[target_quad].pop(i)
+                            del entity
                         elif not self.get_quad(entity.pos) is entity.quad:
                             self.get_quad(entity.pos).append(entity)
                             self.ents_frame[target_quad].pop(i)
+        self.entity_rects.append(self.app.player.rect())
 
 #  Entity parent class
 class Entity:
@@ -97,8 +102,7 @@ class Entity:
             for x in range(3):
                 loc = str(int(self.pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0]) + x - 1) + ';' + str(int(self.pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]) + y - 1)
                 if loc in self.app.entity_manager.ents_frame:
-                    for entity in self.app.entity_manager.ents_frame[loc]:
-                        entities.append(entity)
+                    entities.extend(self.app.entity_manager.ents_frame[loc])
         return entities
 
     def copy(self):

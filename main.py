@@ -1,10 +1,10 @@
-import pygame, random
+import sys, pygame, random
 
 import data.e.scripts as e
 from data.e.scripts.env.tiles import *
 from data.scripts.entities import Player, Blobbo
-from data.scripts.sword import Sword
-from data.e.scripts.entities.paths import PathFinder
+#from data.scripts.sword import Sword
+#from data.e.scripts.entities.paths import PathFinder
 
 class App(e.Pygmy):
     def __init__(self):
@@ -12,16 +12,19 @@ class App(e.Pygmy):
             'caption': 'JINJAMIJET'
         })
         self.world.tile_map.load('data/maps/0.json')
-        self.world.window.add_shader('background', 'frag.frag', 'vert.vert')  # add shaders using mgl module
+        self.world.window.add_shader('background', 'frag.frag', 'vert.vert')  # add shaders with mgl stuff
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
         self.blobbo = [Blobbo((250 + i * 10, 100), (6, 7), (-1, -1), self, 'blobbo', health=5) for i in range(30)]
         self.world.window.set_camera_target(self.player)
-        self.path_finder = PathFinder(self)
+        #self.path_finder = PathFinder(self)
 
     def update(self, screen, scroll):
         self.player.update()
         self.player.draw(screen, scroll)
-        self.path_finder.draw(screen, scroll)
+        if pygame.K_p in self.toggles:
+            print(sys.getsizeof(self.world.tile_map.grass_manager.grass[random.choice(list(self.world.tile_map.grass_manager.grass.keys()))].img_cache))
+        #pygame.draw.rect(screen, (255, 0, 0), self.player.rect())
+        #self.path_finder.draw(screen, scroll)
 
 if __name__ == '__main__':
     App().run()

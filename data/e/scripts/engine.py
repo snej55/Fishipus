@@ -1,4 +1,4 @@
-import pygame, sys, time, json
+import pygame, sys, time, gc
 
 from .init import *
 from .bip import *
@@ -60,11 +60,12 @@ class Pygmy:
     
     def close(self):
         self.running = False
+        del self.world.tile_map.grass_manager
         pygame.display.quit()
         pygame.quit()
         sys.exit()
     
-    def update(*args, **kwargs):
+    def update(self, *args, **kwargs):
         pass
     
     def run(self):
@@ -73,6 +74,7 @@ class Pygmy:
             self.mouse_pos = list(n / self.render_scale[i] for i, n in enumerate(pygame.mouse.get_pos()))
             self.toggles = set([])
             self.scrolling = 0
+            pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.close()
@@ -101,8 +103,7 @@ class Pygmy:
                 self.update()
             else:
                 screen_tex = self.world.window.mgl.surf_to_texture(self.world.window.screen)
-                screen_tex.repeat_x = False
-                screen_tex.repeat_y = False
                 self.world.update(shade_uniforms={'background': {'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
                 self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt
+                screen_tex.release()

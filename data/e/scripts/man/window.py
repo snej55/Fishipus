@@ -42,6 +42,6 @@ class Window:
                     rdest = dest[vao]
             self.vaos[vao].render(rdest, uniforms[vao])
     
-    def inflate(self, scale=0):
+    def inflate(self):
         pygame.transform.scale_by(self.screen, self.render_scale, self.display)
         pygame.display.flip()

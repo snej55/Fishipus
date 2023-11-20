@@ -9,7 +9,8 @@ GAME_ASSETS = {'large_decor': load_tile_imgs('decor/large_decor.png', 32),
                'slash': load_spritesheet('vfx', 'slash'),
                'noise': load_img('vfx/noise.png'),
                'particle/particle': load_spritesheet('particles', 'particle'),
-               'particle/explode': load_spritesheet('particles', 'explode')}
+               'particle/explode': load_spritesheet('particles', 'explode'),
+               'particle/leaf': load_spritesheet('particles', 'leaf')}
 EDIT_ASSETS = {'large_decor': load_tile_imgs('decor/large_decor.png', 32)}
 GAME_ASSETS = load_tile_assets('tiles', GAME_ASSETS, TILE_SIZE)
 EDIT_ASSETS = load_tile_assets('tiles', EDIT_ASSETS, TILE_SIZE)

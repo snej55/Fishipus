@@ -10,7 +10,10 @@ class PathFinder:
         self.gen_map()
         self.connect_points()
     
-    def connect_points(self, jump_height=2):
+    def gen_path(self):
+        pass # vector node based pathfinding stuff here...
+    
+    def connect_points(self, jump_height=2, jump_distance=2):
         points = list(self.graph)
         for i, loc in enumerate(points):
             point = self.graph[loc][0]
@@ -31,12 +34,16 @@ class PathFinder:
                         if abs(spos[0] - (pos[0] - TILE_SIZE)) < TILE_SIZE * 0.25 and spos[1] > pos[1]:
                             if (close_left_drop < 0 or spos[0] < points[i][0]) and close_left_drop != i:
                                 close_left_drop = j
-                        #if spos[1] >= pos[1] - (TILE_SIZE * jump_height) and spos[1] <= pos[1]: TODO: Start here
-
+                        if spos[1] >= pos[1] - (TILE_SIZE * jump_height) and spos[1] <= pos[1] and spos[0] > pos[0] - (TILE_SIZE * (jump_distance + 2)) and spos[0] < pos[0] and self.cell_type(spos, True)[1] == -1:
+                            if not points[j] in self.graph[loc][0]:
+                                self.graph[loc][0].append(points[j])
                     if mode[1] == -1:
                         if abs(spos[0] - (pos[0] + TILE_SIZE)) < TILE_SIZE * 0.25 and spos[1] > pos[1]:
                             if (close_right_drop < 0 or spos[0] < points[i][0]) and close_right_drop != i:
                                 close_right_drop = j
+                        if spos[1] >= pos[1] - (TILE_SIZE * jump_height) and spos[1] <= pos[1] and spos[0] < pos[0] + (TILE_SIZE * (jump_distance + 2)) and spos[0] > pos[0] and self.cell_type(spos, True)[0] == -1:
+                            if not points[j] in self.graph[loc][0]:
+                                self.graph[loc][0].append(points[j])
 
             if close_right > 0:
                 if not points[close_right] in self.graph[loc][0]:

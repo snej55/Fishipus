@@ -1,7 +1,8 @@
 import pygame, json, math
 
-from ..tools.utils import alpha_surf
+from ..tools.utils import alpha_surf, key
 from .chunks import TileChunker
+from .grass import GrassManager
 from ..bip import *
 
 class Tile:
@@ -9,12 +10,18 @@ class Tile:
         self.pos = pygame.Vector2(pos) / render_scale
         if grid:
             self.pos *= TILE_SIZE
+        self.grid = grid
         self.dimensions = pygame.Vector2(dimensions) / render_scale
         self.rect = pygame.Rect(self.pos.x + rect_offset[0] / render_scale, self.pos.y + rect_offset[1] / render_scale, self.dimensions.x, self.dimensions.y)
         self.mode = mode
         self.variant = variant
         self.img = img
         self.key = key
+    
+    def copy(self):
+        tile = Tile(self.pos, self.dimensions, (0, 0), self.mode, self.variant, self.img)
+        tile.__dict__ = dict(self.__dict__)
+        return tile
 
     def draw(self, surf, scroll): # alpha
         surf.blit(self.img, (self.pos.x - scroll.x, self.pos.y - scroll.y))
@@ -24,6 +31,7 @@ class TileMap:
         self.app = app
         self.layers = []
         self.physics_map = PhysicsTileMap(app, {})
+        self.grass_map = {}
     
     def save(self, path):
         with open(path, 'w') as f:
@@ -34,20 +42,37 @@ class TileMap:
         f = open(path, 'r')
         map_data = json.load(f)
         f.close()
+        self.grass_map = {}
         for i, layer in enumerate(map_data['layers']):
-            self.layers.append(Layer(layer, self.app, mode=mode, index=i))
+            self.layers.append(Layer(self, layer, self.app, mode=mode, index=i))
         self.physics_map = PhysicsTileMap(self.app, map_data['physics'])
+        if mode == 'game':
+            self.grass_manager = GrassManager(self.app, self.app.assets['game']['gras'])
+            self.grass_manager.load(self.grass_map, 8, 2)
     
-    def draw(self, surf, scroll):
+    def draw_decor(self, surf, scroll):
         for layer in self.layers:
-            layer.draw(surf, scroll)
+            layer.draw_decor(surf, scroll)
+    
+    def draw_tiles(self, surf, scroll):
+        self.grass_manager.draw(surf, (scroll[0] + 8, scroll[1] - 6))
+        for layer in self.layers:
+            layer.draw_tiles(surf, scroll)
+    
+    def update_grass(self, rects):
+        self.grass_manager.update(rects)
 
 class Layer:
-    def __init__(self, layer, app, mode, index=0):
+    def __init__(self, tile_map, layer, app, mode, index=0):
         self.app = app
         self.mode = mode
+        self.mapper = tile_map
         self.index = index
         self.tile_map, self.decor, self.render_scale = self.load(layer, mode=mode)
+        if mode == 'game':
+            for grass_tile in self.extract([('keys', 0)], False):
+                if grass_tile.grid:
+                    self.mapper.grass_map[grass_tile.key] = None
         self.tile_size = TILE_SIZE / self.render_scale
         for loc in self.tile_map.copy():
             tile = self.tile_map[loc]
@@ -96,7 +121,7 @@ class Layer:
                 tile.variant = AUTO_TILE_MAP[aloc] - 1
                 tile.img = pygame.transform.scale_by(self.app.assets[self.mode][tile.mode][tile.variant], self.render_scale)
     
-    def extract(self, id_pairs, keep=False):
+    def extract(self, id_pairs, keep=False, key=False):
         matches = []
         for tile in self.decor.copy():
             if (tile.mode, tile.variant) in id_pairs:
@@ -140,6 +165,17 @@ class Layer:
                     rects.append(tile.rect)
             return rects
         return []'''
+    
+    def draw_tiles(self, surf, scroll):
+        for x in range(math.floor(scroll.x / self.tile_size), math.floor((scroll.x + surf.get_width()) // self.tile_size + 1)):
+            for y in range(math.floor(scroll.y // self.tile_size), math.floor((scroll.y + surf.get_height()) // self.tile_size + 1)):
+                loc = str(x) + ';' + str(y)
+                if loc in self.tile_map:
+                    tile = self.tile_map[loc]
+                    tile.draw(surf, pygame.Vector2(math.floor(scroll.x), math.floor(scroll.y)))
+    
+    def draw_decor(self, surf, scroll):
+        self.decor_chunker.draw(surf, scroll)
         
     def draw(self, surf, scroll):
         self.decor_chunker.draw(surf, scroll)
