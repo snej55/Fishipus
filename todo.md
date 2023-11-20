@@ -5,7 +5,9 @@ Add fragment / loot with torque
 Add range weapon
 Add enemy AI
 DONE *fix dodgy delta time with particles*
-Add grass
+DONE *Add grass*
+Add leaves
+Fix single blade rotation caching (a bit dodgy, check out blade variants)
 Add water
 Add more foliage and different tilesets
 *IMPORTANT* OPTIMISE THE HECK OUT OF THIS SH#T
