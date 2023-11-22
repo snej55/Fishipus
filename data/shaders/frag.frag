@@ -17,6 +17,8 @@ uniform float timeScale = 0.00025;  // time speed
 uniform float angleConst = 1.5;
 uniform float stripeImpact = 0.03;
 uniform float stripeWidth = 60;
+uniform float bloom_threshold = 0.2;
+uniform float bloom_weight = 0.25;
 uniform float weight[7] = float[] (0.227027, 0.2, 0.17, 0.1216216, 0.08, 0.03, 0.016216);
 // ---------------------
 uniform float threshold = 0.34; // size of hole
@@ -24,7 +26,7 @@ uniform float threshold = 0.34; // size of hole
 vec4 bitFilter(vec4 color) {
     vec4 bloom_color = color;
     float alpha = (bloom_color.r + bloom_color.g + bloom_color.g) * 0.333;
-    if (alpha < 0.95) {
+    if (alpha < bloom_threshold) {
         bloom_color.rgb = vec3(0.0, 0.0, 0.0);
     } 
     return bloom_color;
@@ -97,7 +99,7 @@ void main() {
     baseColor += alpha_sample;
     //vec4 bloom_sample = texture(bloom_tex, texCoords);
     //baseColor = bloom_sample;
-    vec2 tex_offset = 0.5 / textureSize(tex, 0) * 0.5;
+    vec2 tex_offset = bloom_weight / textureSize(tex, 0);
     vec3 result = bitFilter(texture(tex, texCoords) + texture(alpha_surf, texCoords)).rgb * weight[0];
     for (int i = 1; i < 7; i++) {
         result += sampleTex(texCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];

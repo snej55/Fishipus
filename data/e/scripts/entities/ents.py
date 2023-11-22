@@ -97,13 +97,12 @@ class Entity:
         return entities
     
     def get_neighbours(self):
-        entities = []
         for y in range(3):
             for x in range(3):
                 loc = str(int(self.pos[0] / TILE_SIZE / ENTITY_QUAD_SIZE[0]) + x - 1) + ';' + str(int(self.pos[1] / TILE_SIZE / ENTITY_QUAD_SIZE[1]) + y - 1)
                 if loc in self.app.entity_manager.ents_frame:
-                    entities.extend(self.app.entity_manager.ents_frame[loc])
-        return entities
+                    for entity in self.app.entity_manager.ents_frame[loc]:
+                        yield entity
 
     def copy(self):
         entity = Entity(self.pos, self.dimensions, self.anim_offset, self.app, self.mode, self.fiend, self.enemy)
@@ -208,7 +207,7 @@ class PlayerBase(Entity):
         self.frames = {'idle': 0, 'jump': 0, 'run': 0, 'land': 0}
         self.anim = {'idle': Animation(self, self.animation(mode='idle'), 0.2, True),
                      'jump': Animation(self, self.animation(mode='jump'), 0.125, False, indep=['falling', jump_animbuff]),
-                     'run': Animation(self, self.animation(mode='run'), 0.3, True),
+                     'run': Animation(self, self.animation(mode='run'), 0.4, True),
                      'land': Animation(self, self.animation(mode='land'), 0.125, False, indep=['grounded', ground_buff])}
         self.jumping = 99
         self.ground_buff = ground_buff
@@ -226,21 +225,31 @@ class PlayerBase(Entity):
         self.grounded_tim = grounded_tim
         self.jump_tim = jump_tim
         self.fall_buff = fall_buff
+        self.jumped = 99
         self.sec()
 
     def update(self):
         self.grounded += self.grounded_tim * self.app.dt
         self.jumping += self.jump_tim * self.app.dt
         self.controls = {'up': self.controls['up'], 'down': self.app.keys[pygame.K_DOWN] or self.app.keys[pygame.K_s], 'left': self.app.keys[pygame.K_LEFT] or self.app.keys[pygame.K_a], 'right': self.app.keys[pygame.K_RIGHT] or self.app.keys[pygame.K_d]}
-        if pygame.K_UP in self.app.toggles or pygame.K_w in self.app.toggles:
-            self.controls['up'] = True
-            self.jumping = 0
         if self.controls['left']:
             self.movement[0] -= self.vx
             self.flipped = True
         if self.controls['right']:
             self.movement[0] += self.vx
             self.flipped = False
+        if (self.app.keys[pygame.K_UP] or self.app.keys[pygame.K_w]):
+            self.controls['up'] = True
+        else:
+            self.controls['up'] = False
+
+        if pygame.K_UP in self.app.toggles and self.falling < self.fall_buff and self.controls['up']:
+            self.jumped = 1
+        if self.jumped <= 6 and self.controls['up']:
+            self.movement[1] += self.vj
+        else:
+            self.jumped = 7
+        self.jumped += 0.5 * self.app.dt
         if not (self.falling > self.fall_buff and (self.controls['left'] or self.controls['right'])):
             self.movement[0] *= self.air_friction
         else:
@@ -250,13 +259,6 @@ class PlayerBase(Entity):
         if not self.jumps:
             if self.falling >= self.fall_buff:
                 self.jumps = 1
-        self.controls['up'] = self.jumping < self.jump_buff
-        if self.controls['up']:
-            if self.falling < self.fall_buff or self.jumps < self.double_jump:
-                self.movement[1] = self.vj
-                self.jumping = self.jump_buff + 99
-                self.jumps += 1
-                self.falling = self.fall_buff
         if self.movement[1] ** 2 < self.gravity_apr[3]:
             self.gravity = self.gravity_apr[0]
         else:

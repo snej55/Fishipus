@@ -185,8 +185,8 @@ class GrassManager:
         return wind
     
     def draw(self, surf, scroll=(0, 0)):
-        for x in range(math.floor(scroll[0] / TILE_SIZE), math.floor((scroll[0] + surf.get_width()) / TILE_SIZE + 1)):
-            for y in range(math.floor(scroll[1] / TILE_SIZE), math.floor((scroll[1] + surf.get_height()) / TILE_SIZE + 1)):
+        for x in range(math.floor(scroll[0] / TILE_SIZE), math.floor((scroll[0] + surf.get_width()) / TILE_SIZE + 2)):
+            for y in range(math.floor(scroll[1] / TILE_SIZE), math.floor((scroll[1] + surf.get_height()) / TILE_SIZE + 2)):
                 loc = str(x - 1) + ';' + str(y - 1)
                 if loc in self.grass:
                     self.grass[loc].draw(self.app.dt, surf, scroll)

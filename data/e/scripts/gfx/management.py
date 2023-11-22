@@ -68,6 +68,9 @@ class GFXManager:
             self.particle_systems[system].update(self.app.world.window.alpha_surf, scroll)
         for particle in self.particles.copy():
             kill = particle.update()
+            if particle.particle_type == 'leaf' and (not particle.done):
+                particle.pos[0] += math.sin(particle.frame * 0.08) * 0.8 * self.app.dt - 0.5 * self.app.dt
+                particle.vel[1] = min(0.2, particle.vel[1] + 0.005 * self.app.dt)
             particle.draw(surf, scroll)
             if kill:
                 self.particles.remove(particle)

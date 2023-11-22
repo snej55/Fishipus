@@ -1,9 +1,10 @@
-import pygame, json, math
+import pygame, json, math, random
 
-from ..tools.utils import alpha_surf, key
-from .chunks import TileChunker
+from ..gfx.particles import Particle
+from .chunks import TileChunker, Rects
 from .grass import GrassManager
 from ..bip import *
+from .leaf_loader import LeafSpawnLoader
 
 class Tile:
     def __init__(self, pos, dimensions, rect_offset, mode: str, variant: int, img: pygame.Surface, key=None, grid=False, render_scale=1.0):
@@ -31,7 +32,12 @@ class TileMap:
         self.app = app
         self.layers = []
         self.physics_map = PhysicsTileMap(app, {})
+        self.leaf_spawners = None
         self.grass_map = {}
+    
+    def load_leaves(self, path):
+        loader = LeafSpawnLoader(self.app, path)
+        self.leaf_spawners = Rects(loader.rects, [10, 10])
     
     def save(self, path):
         with open(path, 'w') as f:
@@ -50,6 +56,12 @@ class TileMap:
             self.grass_manager = GrassManager(self.app, self.app.assets['game']['gras'])
             self.grass_manager.load(self.grass_map, 8, 2)
     
+    def extract(self, id_pairs, keep=False):
+        matches = []
+        for layer in self.layers:
+            matches.extend(layer.extract(id_pairs, keep))
+        return matches
+    
     def draw_decor(self, surf, scroll):
         for layer in self.layers:
             layer.draw_decor(surf, scroll)
@@ -58,6 +70,17 @@ class TileMap:
         self.grass_manager.draw(surf, (scroll[0] + 8, scroll[1] - 6))
         for layer in self.layers:
             layer.draw_tiles(surf, scroll)
+
+    def leaves(self, surf, scroll):
+        if self.leaf_spawners:
+            for rect, fix in self.leaf_spawners.updateables(surf, scroll):
+                if random.random() * 20000 / 0.5 / self.app.dt < rect.width * rect.height:
+                    if rect.colliderect(self.app.u_rect()):
+                        pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
+                        if not self.physics_map.solid_check(pos) and fix:
+                            self.app.world.gfx_manager.particles.append(Particle(self.app, 'leaf', pos, (-0.1, 0.3), frame=random.randint(0, 16), solid=True))
+                        else:
+                            self.app.world.gfx_manager.particles.append(Particle(self.app, 'leaf', pos, (-0.1, 0.3), frame=random.randint(0, 16), solid=False))
     
     def update_grass(self, rects):
         self.grass_manager.update(rects)
@@ -121,7 +144,7 @@ class Layer:
                 tile.variant = AUTO_TILE_MAP[aloc] - 1
                 tile.img = pygame.transform.scale_by(self.app.assets[self.mode][tile.mode][tile.variant], self.render_scale)
     
-    def extract(self, id_pairs, keep=False, key=False):
+    def extract(self, id_pairs, keep=False):
         matches = []
         for tile in self.decor.copy():
             if (tile.mode, tile.variant) in id_pairs:
@@ -231,9 +254,7 @@ class PhysicsTileMap:
             return self.tile_map[tile_loc].mode == 'block'
     
     def particle_solid(self, pos):
-        tile_loc = str(math.floor(pos[0] // TILE_SIZE)) + ';' + str(math.floor(pos[1] // TILE_SIZE))
-        if tile_loc in self.tile_map:
-            return True
+        return f'{str(math.floor(pos[0] / TILE_SIZE))};{str(math.floor(pos[1] / TILE_SIZE))}' in self.tile_map
     
     def tile_type_at(self, pos):
         tile_loc = str(math.floor(pos[0] / TILE_SIZE)) + ';' + str(math.floor(pos[1] / TILE_SIZE))
@@ -250,10 +271,8 @@ class PhysicsTileMap:
         return tiles
     
     def physics_rects_around(self, pos):
-        rects = []
         for tile in self.tiles_around(pos):
-            rects.append(tile.rect)
-        return rects
+            yield tile.rect
     
     def draw(self, surf, scroll):
         for loc in self.tile_map:

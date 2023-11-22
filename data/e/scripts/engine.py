@@ -65,6 +65,9 @@ class Pygmy:
         pygame.quit()
         sys.exit()
     
+    def u_rect(self):
+        return pygame.Rect(self.scroll[0] - 64, self.scroll[1] - 64, self.world.window.screen.get_width() + 128, self.world.window.screen.get_height() + 128)
+    
     def update(self, *args, **kwargs):
         pass
     
@@ -103,7 +106,7 @@ class Pygmy:
                 self.update()
             else:
                 screen_tex = self.world.window.mgl.surf_to_texture(self.world.window.screen)
-                self.world.update(shade_uniforms={'background': {'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
+                self.world.update(shade_uniforms={'background': {'bloom_weight': 0.25 / self.world.tick.slomo,'bloom_threshold': 0.95 * self.world.tick.slomo, 'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
                 self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt
                 screen_tex.release()

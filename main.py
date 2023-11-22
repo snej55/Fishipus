@@ -12,6 +12,7 @@ class App(e.Pygmy):
             'caption': 'JINJAMIJET'
         })
         self.world.tile_map.load('data/maps/0.json')
+        self.world.tile_map.load_leaves('data/config/leaf.json')
         self.world.window.add_shader('background', 'frag.frag', 'vert.vert')  # add shaders with mgl stuff
         self.player = Player((200, 10), (6, 7), (-1, -1), self, vj=-4)
         self.blobbo = [Blobbo((250 + i * 10, 100), (6, 7), (-1, -1), self, 'blobbo', health=5) for i in range(30)]
@@ -21,8 +22,7 @@ class App(e.Pygmy):
     def update(self, screen, scroll):
         self.player.update()
         self.player.draw(screen, scroll)
-        if pygame.K_p in self.toggles:
-            print(sys.getsizeof(self.world.tile_map.grass_manager.grass[random.choice(list(self.world.tile_map.grass_manager.grass.keys()))].img_cache))
+        self.world.tile_map.leaves(screen, scroll)
         #pygame.draw.rect(screen, (255, 0, 0), self.player.rect())
         #self.path_finder.draw(screen, scroll)
 
