@@ -200,13 +200,13 @@ grounded = lambda entity: entity.grounded < entity.ground_buff
 
 # TODO: MAKE A SWORD FOR THIS DUDE!!
 class PlayerBase(Entity):
-    def __init__(self, pos, dimensions, anim_offset, app, air_friction=0.56, friction=0.54, vx=1.2, vj=-3.15, jump_buff=15, double_jump=1, gravity_apr=[0.16,0.32,0.1,1,0], out_dim=0.5,
-             grounded_tim=1, jump_tim=1, fall_buff=12, ground_buff=20, jump_animbuff=110):
+    def __init__(self, pos, dimensions, anim_offset, app, air_friction=0.56, friction=0.54, vx=1.4, vj=-3.15, jump_buff=15, double_jump=1, gravity_apr=[0.16,0.32,0.1,1,0], out_dim=0.5,
+             grounded_tim=1, jump_tim=1, fall_buff=12, ground_buff=20, jump_animbuff=200):
         super().__init__(pos, dimensions, anim_offset, app, 'player', False, 'all')
         self.controls = {'up': False, 'down': False, 'left': False, 'right': False}
         self.frames = {'idle': 0, 'jump': 0, 'run': 0, 'land': 0}
         self.anim = {'idle': Animation(self, self.animation(mode='idle'), 0.2, True),
-                     'jump': Animation(self, self.animation(mode='jump'), 0.125, False, indep=['falling', jump_animbuff]),
+                     'jump': Animation(self, self.animation(mode='jump'), 0.4, False, indep=['falling', jump_animbuff]),
                      'run': Animation(self, self.animation(mode='run'), 0.4, True),
                      'land': Animation(self, self.animation(mode='land'), 0.125, False, indep=['grounded', ground_buff])}
         self.jumping = 99
@@ -240,13 +240,13 @@ class PlayerBase(Entity):
             self.flipped = False
         if (self.app.keys[pygame.K_UP] or self.app.keys[pygame.K_w]):
             self.controls['up'] = True
+            self.jumping = 0
         else:
             self.controls['up'] = False
-
         if pygame.K_UP in self.app.toggles and self.falling < self.fall_buff and self.controls['up']:
             self.jumped = 1
         if self.jumped <= 6 and self.controls['up']:
-            self.movement[1] += self.vj
+            self.movement[1] = max(self.vj, min(-0.2, self.vj * 0.65))
         else:
             self.jumped = 7
         self.jumped += 0.5 * self.app.dt

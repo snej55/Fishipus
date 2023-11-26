@@ -4,6 +4,7 @@ uniform sampler2D tex;
 // use a different noise texture e.g: different scale, detail, size, octaves, levels
 uniform sampler2D noise;
 uniform sampler2D alpha_surf; // smoke vfx... etc
+uniform sampler2D ui_surf;
 //uniform sampler2D bloom_tex;
 uniform float time;
 // scroll (obsolete)
@@ -80,7 +81,7 @@ void main() {
 
     // check if part of background
     float alpha = (texture(tex, texCoords).r + texture(tex, texCoords).g + texture(tex, texCoords).b) * 0.333;
-    if (alpha > 0.01) {
+    if (alpha > 0.001) {
         baseColor = texture(tex, texCoords);
     }
     // vignait effect
@@ -108,5 +109,9 @@ void main() {
         result += sampleTex(texCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
     }
     baseColor.rgb += result;
+    float ui_alpha = (texture(ui_surf, texCoords).r + texture(ui_surf, texCoords).g + texture(ui_surf, texCoords).b) * 0.333;
+    if (ui_alpha > 0.001) {
+        baseColor = texture(ui_surf, texCoords);
+    }
     f_color = vec4(baseColor.rgb, 1.0);
 }

@@ -44,7 +44,7 @@ class Sword:
         self.target_turn = 180
         self.flipped = False
         self.target_dir = 1 * math.pi
-        self.damp = 0.4
+        self.damp = 0.5
         self.attack_surf = pygame.Surface((32, 32))
         self.attack_mask = pygame.mask.from_surface(self.attack_surf)
         self.attack_offset = (0, 0)
@@ -61,7 +61,7 @@ class Sword:
             self.target_turn = 90
         self.attacking = True
         self.attacked = 0
-        self.damp = 0.5
+        self.damp = 0.6
         if not self.flipped:
             self.slash = Slash(self.app, (self.target.rect().centerx - 5, self.target.pos[1] - 5), target=self.target, vflip=bool(self.target_dir == -math.pi * 0.25))
         else:
@@ -80,11 +80,11 @@ class Sword:
                 self.damp = 0.5
             if self.attacked > 40:
                 self.attacking = False
-                self.attacked = 10
+                self.attacked = 4
                 self.damp = 0.4
         if self.attacking:
-            if self.shadow_release > 2 and self.app.world.gfx_manager.slashs:
-                if self.app.world.gfx_manager.slashs[-1].animation.frame < 13:
+            if self.shadow_release > 2 and self.slash:
+                if self.slash.animation.frame < 13:
                     self.shadow_release = 0
                     img_copy = pygame.transform.rotate(self.img, math.degrees(self.angle) - 90 + self.angle_offset)
                     self.flipped = False
@@ -94,7 +94,7 @@ class Sword:
                         self.flipped = True
                         offset[0] -= 3
                         offset[1] += 0
-                    self.app.gfx_manager.shadows.append(Shadow(img_copy, (self.pos[0] + int(self.img.get_width() / 2) - int(img_copy.get_width() / 2) + offset[0], self.pos[1] + int(self.img.get_height() / 2) - int(img_copy.get_height() / 2)+ offset[1]),
+                    self.app.world.gfx_manager.shadows.append(Shadow(img_copy, (self.pos[0] + int(self.img.get_width() / 2) - int(img_copy.get_width() / 2) + offset[0], self.pos[1] + int(self.img.get_height() / 2) - int(img_copy.get_height() / 2)+ offset[1]),
                     self.app, self, decay=20, start_alpha=100))
         force = (-self.target_dir - self.angle) * 0.3
         self.swing_vel += force * self.app.dt

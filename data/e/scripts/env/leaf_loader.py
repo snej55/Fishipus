@@ -1,5 +1,6 @@
 import pygame, json
 
+from ..bip import TILE_SIZE
 from ..assets import GAME_ASSETS
 
 class LeafSpawnLoader:
@@ -21,6 +22,12 @@ class LeafSpawnLoader:
             id_pairs = [(m, v) for m in self.config for v in self.config[m]]
             for tile in tile_map.extract(id_pairs, keep=True):
                 if leaf_data[tile.mode][str(tile.variant)][0]:
-                    rect_data.append((pygame.Rect(tile.rect.x + leaf_data[tile.mode][str(tile.variant)][0][0], tile.rect.y + leaf_data[tile.mode][str(tile.variant)][0][1], leaf_data[tile.mode][str(tile.variant)][0][2], leaf_data[tile.mode][str(tile.variant)][0][3]), False))
+                    rect_data.append((pygame.Rect(tile.rect.x + leaf_data[tile.mode][str(tile.variant)][0][0],
+                                                   tile.rect.y + leaf_data[tile.mode][str(tile.variant)][0][1], leaf_data[tile.mode][str(tile.variant)][0][2],
+                                                     leaf_data[tile.mode][str(tile.variant)][0][3]),
+                                                       True))
+            for loc in tile_map.grass_manager.grass:
+                tile = tile_map.grass_manager.grass[loc]
+                rect_data.append((pygame.Rect(tile.pos[0], tile.pos[1] + TILE_SIZE - 2, TILE_SIZE, 2), False))
             return rect_data
             

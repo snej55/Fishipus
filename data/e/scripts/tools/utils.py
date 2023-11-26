@@ -3,19 +3,23 @@ import pygame, math, os, json
 from ..bip import *
 
 def load_img(path, scale=(1, 1)):
-    img = pygame.transform.scale_by(pygame.image.load(BASE_IMG_PATH + '/' + path).convert(), scale)
+    img = pygame.transform.scale_by(pygame.image.load(BASE_IMG_PATH + '/' + path), scale)
     img.convert()
     img.set_colorkey((0, 0, 0))
     return img
+
+def mean_points(points):
+    v = pygame.Vector2(0, 0)
+    for p in points:
+        v += p
+    return v / len(points)
     
 def snip(spritesheet, pos, dimensions):
-    sheet = spritesheet.copy()
-    surf = pygame.Surface(dimensions)
-    surf.blit(sheet, (-pos[0], -pos[1]))
-    surf.convert()
-    surf.set_colorkey((0, 0, 0))
-    del sheet
-    return surf
+    handle_surf = spritesheet.copy()
+    clip_rect = pygame.Rect(pos, dimensions)
+    handle_surf.set_clip(clip_rect)
+    image = spritesheet.subsurface(handle_surf.get_clip())
+    return image.copy()
 
 def load_tile_assets(path, assets, tile_size):
     for img_name in sorted(os.listdir(BASE_IMG_PATH + '/' + path)):
@@ -34,9 +38,8 @@ def load_audio(path):
     return tracks
 
 def load_spritesheet(path, name):
-    path = BASE_IMG_PATH + '/' + path
-    img = pygame.image.load(path + '/' + name + '.png')
-    f = open(path + '/' + name + '.json')
+    img = load_img(path + '/' + name + '.png')
+    f = open(BASE_IMG_PATH + '/' + path + '/' + name + '.json')
     img_data = json.load(f)
     f.close()
     imgs = []

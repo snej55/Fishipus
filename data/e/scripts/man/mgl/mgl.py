@@ -107,6 +107,7 @@ class RenderObject:
                     uniforms[uniform].use(tex_id)
                     self.program[uniform].value = tex_id
                     tex_id += 1
+                    self.temp_texs.append(uniforms[uniform])
                 else:
                     self.program[uniform].value = uniforms[uniform]
 

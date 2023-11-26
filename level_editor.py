@@ -236,13 +236,15 @@ class Editor():
             self.screen.blit(self.filt, (0, 0))
             layers[self.layer].draw(self.screen, self.scroll)
         elif self.lyrs == 1:
-            self.tile_map.draw(self.screen, self.scroll)
+            self.tile_map.draw_decor(self.screen, self.scroll)
+            self.tile_map.draw_tiles(self.screen, self.scroll)
             self.tile_map.physics_map.draw(self.screen, render_scroll)
         else:
             self.tile_map.layers.sort(key=lambda x: x.index)
             for i, layer in enumerate(self.tile_map.layers):
                 layer.index = i
-            self.tile_map.draw(self.screen, self.scroll)
+            self.tile_map.draw_decor(self.screen, self.scroll)
+            self.tile_map.draw_tiles(self.screen, self.scroll)
         self.draw_grid(render_scroll, [1, 1], (50, 50, 50))
         self.draw_grid(render_scroll, CHUNK_SIZE, (100, 50, 0))
         self.draw_grid(render_scroll, WATER_CHUNK_SIZE, (0, 0, 100))

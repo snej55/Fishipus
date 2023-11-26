@@ -9,6 +9,7 @@ class Window:
         self.render_scale = pygame.Vector2(RENDER_SCALE, RENDER_SCALE)
         self.display = pygame.display.set_mode(WIN_DIMENSIONS, flags=pygame.DOUBLEBUF | pygame.OPENGL | pygame.RESIZABLE)
         self.screen = pygame.Surface((self.display.get_width() / self.render_scale.x, self.display.get_height() / self.render_scale.y))
+        self.ui_surf = self.screen.copy()
         self.alpha_surf = self.screen.copy()
         self.app = app#
         self.camera = Camera(app, self)
@@ -16,7 +17,7 @@ class Window:
         self.render_scroll = [0, 0]
         self.vaos = {}
         self.mgl = MGL(app)
-    
+
     def add_shader(self, name, frag_path, vert_path=None, buffer=None, vao_args=['2f 2f', 'vert', 'texcoord']):
         self.vaos[name] = self.mgl.render_object(frag_path, vert_path, vao_args, buffer)
     
@@ -25,6 +26,7 @@ class Window:
     
     def sec(self):
         self.screen.fill((0, 0, 0))
+        self.ui_surf.fill((0, 0, 0))
         self.alpha_surf.fill((0, 0, 0))
         self.render_scroll = self.camera.update()
         return self.screen, self.render_scroll

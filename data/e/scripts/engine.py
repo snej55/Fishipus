@@ -106,7 +106,6 @@ class Pygmy:
                 self.update()
             else:
                 screen_tex = self.world.window.mgl.surf_to_texture(self.world.window.screen)
-                self.world.update(shade_uniforms={'background': {'bloom_weight': 0.25 / self.world.tick.slomo,'bloom_threshold': 0.95 * self.world.tick.slomo, 'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
+                self.world.update(shade_uniforms={'background': {'ui_surf': self.world.window.ui_surf, 'bloom_weight': 0.2 / self.world.tick.slomo,'bloom_threshold': 0.95 * (1 - (1 - self.world.tick.slomo) * 0.125), 'tex': screen_tex, 'noise': self.assets['game']['noise'], 'time': self.time * 5, 'camera': self.world.window.render_scroll, 'alpha_surf': self.world.window.alpha_surf}})
                 self.scroll = self.world.window.render_scroll
                 self.dt = self.world.tick.dt
-                screen_tex.release()

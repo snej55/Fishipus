@@ -1,25 +1,28 @@
-import pygame, gc, sys, random, math
+import pygame, random, math
+
+from .chunks import StationaryQuads
 from copy import deepcopy
 from ..bip import *
 
 class Grass:
     img_cache = {}
-    def __init__(self, img, pos, tension, variant, tile_variant=0):
-        self.img = img.copy()
+    def __init__(self, tile, img, pos, tension, variant, tile_variant=0):
+        self.img = img
         self.tile_variant = tile_variant
-        self.img.convert()
-        self.img.set_colorkey((0, 0, 0))
         self.img_copy = img.copy()
+        self.tile = tile
         self.pos = list(pos)
         self.angle = 0
         self.target_angle = 0
+        self.turn_vel = 0
         self.angle_offset = math.sin(self.pos[0] * 5) * 20
         self.tension = tension
         self.variant = variant
-        self.rect = pygame.Rect([self.pos[0] - 4, self.pos[1] + 2], [10, 10])
+        self.rect = pygame.Rect([self.pos[0] -  2, self.pos[1]], [6, 12])
     
     def update_img(self, offset=1):
-        key = (int(self.angle + self.angle_offset * offset), self.variant)
+        angle = (self.angle + self.angle_offset * offset + self.tile._wind)
+        key = (math.floor(angle / GRASS_ACCURACY) * GRASS_ACCURACY, self.variant)
         if not key in self.img_cache:
             self.img_cache[key] = pygame.transform.rotate(self.img, key[0])
             self.img_cache[key].convert()
@@ -27,11 +30,11 @@ class Grass:
         self.img_copy = self.img_cache[key]
         return self.img_copy
     
-    def update(self, wind, rect, dt):
-        self.target_angle = wind
+    def update(self, rect, dt):
+        self.target_angle = 0
         if self.rect.colliderect(rect):
-            distance = (rect.right - self.rect.centerx) ** 2 + (rect.centery - self.rect.centery) ** 2
-            hd = rect.right - self.rect.centerx
+            distance = (rect.centerx - self.rect.centerx) ** 2 + (rect.centery - self.rect.centery) ** 2
+            hd = rect.centerx - self.rect.centerx
             if distance < 1600:
                 temp_target = 0
                 if hd <= 0:
@@ -40,13 +43,16 @@ class Grass:
                     temp_target = 70 - hd * 3.5
                 self.target_angle = min(self.target_angle + temp_target, 90)
                 self.target_angle = max(self.target_angle, -90)
-        self.angle += (self.target_angle - self.angle) / self.tension * dt
-        self.angle = max(-90, min(self.angle, 90))
-        self.update_img()
     
     def draw(self, dt, surf, scroll=(0, 0)):
         #pygame.draw.rect(surf, (255, 0, 0), self.rect, width=1)
-
+        force = (self.target_angle - self.angle) / self.tension
+        self.turn_vel += force * dt
+        self.angle += self.turn_vel * dt
+        self.turn_vel += (self.turn_vel * GRASS_DAMPENING - self.turn_vel) * dt
+        #self.angle += (self.target_angle - self.angle) / self.tension * dt
+        self.angle = max(-90, min(self.angle, 90))
+        self.update_img()
         loc = (self.pos[0] + int(self.img.get_width() / 2) - int(self.img_copy.get_width() / 2) - scroll[0], self.pos[1] + int(self.img.get_height() / 2) - int(self.img_copy.get_height() / 2) - scroll[1])
         surf.blit(self.img_copy, loc)
 
@@ -58,6 +64,7 @@ class GrassTile:
         self.pos = [int(coord) * TILE_SIZE for coord in loc.split(';')]
         self.grass = []
         self.variant = variant
+        self._wind = 0
         self.padding = 13
         self.default_surf = pygame.Surface((TILE_SIZE, TILE_SIZE))
         self.default_surf.convert()
@@ -71,11 +78,13 @@ class GrassTile:
     
     def update(self, rect, dt):
         for blade in self.grass:
-            if not self.go_grass:
-                blade.angle = self.wind()
-            blade.update(self.wind(), rect, dt)
+            blade.update(rect, dt)
         self.updated = True
         self.go_grass = True
+    
+    def sec(self):
+        for blade in self.grass:
+            blade.tile = self
     
     def gen_assets(self, accuracy):
         img_surf = pygame.Surface((TILE_SIZE + self.padding * 2, TILE_SIZE + self.padding * 2))
@@ -85,7 +94,8 @@ class GrassTile:
                 img_surf.fill((0, 0, 0))
                 blade_offset = deepcopy(self.grass[0].pos)
                 for j, blade in enumerate(self.grass):
-                    blade.angle = int(max(-90, min(90, i)))
+                    blade.target_angle = 1
+                    blade.angle = int(max(-90, min(90, math.floor(i / accuracy) * accuracy)))
                     blade.update_img()
                     loc = (self.padding + blade.pos[0] + int(blade.img.get_width() / 2) - int(blade.img_copy.get_width() / 2) - blade_offset[0], self.padding + blade.pos[1] + int(blade.img.get_height() / 2) - int(blade.img_copy.get_height() / 2) - blade_offset[1])
                     img_surf.blit(blade.img_copy, deepcopy(loc))
@@ -99,14 +109,30 @@ class GrassTile:
             return self.img_cache[key]
         return self.default_surf
 
-    def draw(self, dt, surf, scroll=(0, 0)):
+    # use this when dealing with a lot of grass
+    # it doesn't look as good tho
+    def tile_draw(self, dt, surf, scroll=(0, 0)):
+        self._wind = self.wind()
         if self.updated:
             for blade in self.grass:
                 blade.draw(dt, surf, (scroll[0], scroll[1]))
                 if not self.updated:
-                    blade.target_angle = self.wind()
+                    blade.target_angle = self._wind
         else:
-            surf.blit(self.get_img(self.variant, self.wind(), GRASS_ACCURACY), (self.pos[0] - self.padding - scroll[0], self.pos[1] - self.padding - scroll[1]))
+            surf.blit(self.get_img(self.variant, self._wind, GRASS_ACCURACY), (self.pos[0] - self.padding - scroll[0], self.pos[1] - self.padding - scroll[1]))
+        if not self.updated:
+            self.go_grass = False
+        self.updated = False
+
+    def draw(self, dt, surf, scroll=(0, 0)):
+        self._wind = self.wind()
+        #if self.updated:
+        for blade in self.grass:
+            blade.draw(dt, surf, (scroll[0], scroll[1]))
+            if not self.updated:
+                blade.target_angle = self._wind
+        #else:
+        #    surf.blit(self.get_img(self.variant, self._wind, GRASS_ACCURACY), (self.pos[0] - self.padding - scroll[0], self.pos[1] - self.padding - scroll[1]))
         if not self.updated:
             self.go_grass = False
         self.updated = False
@@ -134,7 +160,13 @@ class GrassManager:
     
     def load(self, grass, amount, density):
         self.grass = self.load_grass(grass, amount, density)
-        self.gen_assets(GRASS_ACCURACY)
+        #self.gen_assets(GRASS_ACCURACY)
+        self.sec()
+        self.grass_quads = StationaryQuads([self.grass[loc] for loc in self.grass], [10, 10])
+    
+    def sec(self):
+        for loc in self.grass:
+            self.grass[loc].sec()
 
     def gen_grass(self, grass_map, amount, density):
         grass = {}
@@ -145,7 +177,8 @@ class GrassManager:
             tile_variant = random.randint(0, len(grass_order) - 1)
             for i in range(amount):
                 aloc = [pos[0] + i * density, pos[1]]
-                grass[loc].append(Grass(self.grass_imgs[grass_order[tile_variant][i % len(grass_order)]], aloc, GRASS_TENSION, grass_order[tile_variant][i % len(grass_order)], tile_variant=tile_variant))
+                choice = random.randint(0, len(self.grass_imgs) * 3) % len(grass_order)
+                grass[loc].append(Grass(None, self.grass_imgs[grass_order[tile_variant][choice]], aloc, GRASS_TENSION, grass_order[tile_variant][choice], tile_variant=tile_variant))
         return grass
 
     def load_grass(self, grass, amount, density):
@@ -180,13 +213,15 @@ class GrassManager:
     
     @staticmethod
     def wind(time):
-        wind = math.sin(time * 0.05) * 30 + math.sin(time * 0.1) * 5 + math.cos(time * 0.3) * 10 + abs(math.sin(time * 0.2)) * 20 + 30
+        wind = math.sin(time * 0.05) * 15 + math.sin(time * 0.045) * 12.5
         wind += (0 - wind) * 0.6
         return wind
     
     def draw(self, surf, scroll=(0, 0)):
-        for x in range(math.floor(scroll[0] / TILE_SIZE), math.floor((scroll[0] + surf.get_width()) / TILE_SIZE + 2)):
+        '''for x in range(math.floor(scroll[0] / TILE_SIZE), math.floor((scroll[0] + surf.get_width()) / TILE_SIZE + 2)):
             for y in range(math.floor(scroll[1] / TILE_SIZE), math.floor((scroll[1] + surf.get_height()) / TILE_SIZE + 2)):
                 loc = str(x - 1) + ';' + str(y - 1)
                 if loc in self.grass:
-                    self.grass[loc].draw(self.app.dt, surf, scroll)
+                    self.grass[loc].draw(self.app.dt, surf, scroll)'''
+        for tile in self.grass_quads.updateables(surf, pygame.Vector2(scroll)):
+            tile.draw(self.app.dt, surf, scroll)

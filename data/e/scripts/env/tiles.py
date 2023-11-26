@@ -67,7 +67,8 @@ class TileMap:
             layer.draw_decor(surf, scroll)
     
     def draw_tiles(self, surf, scroll):
-        self.grass_manager.draw(surf, (scroll[0] + 8, scroll[1] - 6))
+        if hasattr(self, 'grass_manager'):
+            self.grass_manager.draw(surf, (scroll[0] + 8, scroll[1] - 6))
         for layer in self.layers:
             layer.draw_tiles(surf, scroll)
 

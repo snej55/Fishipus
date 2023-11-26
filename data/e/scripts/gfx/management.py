@@ -33,6 +33,9 @@ class GFXManager:
     
     def add_glow_dust(self, pos, vel, color, alpha, bounce=0.7, gravity=0.1, friction=0.999, decay=1, flags=0):
         self.glow_dust.append([list(pos), list(vel), tuple(color), alpha, bounce, gravity, friction, color, decay, 0, flags])
+    
+    def add_smoke(self, pos, vel, scale, alpha, angle, target_angle, color):
+        self.smoke.append([list(pos), list(vel), scale, alpha, angle, target_angle, color]) # [list(self.rect().center), [math.cos(angle) * speed, math.sin(angle) * speed], 1, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)]
 
     @staticmethod
     def alpha_surf(dim, alpha, color):
@@ -50,8 +53,6 @@ class GFXManager:
         smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.app.dt)
         smoke[2] += 0.25 * self.app.dt
         surf = pygame.transform.rotate(self.alpha_surf([smoke[2], smoke[2]], smoke[3], smoke[6]), smoke[4])
-        surf.set_alpha(smoke[3])
-        surf.convert_alpha()
         if not smoke[3]:
             self.smoke.remove(smoke)
         return (surf, (smoke[0][0] - surf.get_width() * 0.5 - scroll.x, smoke[0][1] - surf.get_height() * 0.5 - scroll.y))
@@ -63,6 +64,29 @@ class GFXManager:
         surf.set_colorkey((0, 0, 0))
         return surf
     
+    def update_kickup(self, particle, scroll):
+        if particle[9] < 10:
+            particle[0][0] += particle[1][0] * self.app.dt
+            if self.app.world.tile_map.physics_map.particle_solid(particle[0]):
+                particle[1][0] *= -particle[4]
+                particle[0][0] += particle[1][0] * self.app.dt * 2
+                particle[1][1] *= particle[6]
+            particle[0][1] += particle[1][1] * self.app.dt
+            if self.app.world.tile_map.physics_map.particle_solid(particle[0]):
+                particle[1][1] *= -particle[4]
+                particle[0][1] += particle[1][1] * self.app.dt * 2
+                particle[1][0] *= particle[6]
+            if abs(particle[1][0]) < 0.03 and abs(particle[1][1]) < 0.03:
+                particle[9] += 1 * self.app.dt
+            particle[1][1] += particle[5] * self.app.dt
+        for c in particle[2]:
+            c = particle[3]
+        if particle[0] in self.app:
+            self.app.world.window.alpha_surf.set_at((particle[0][0] - scroll[0] - 0.5, particle[0][1] - scroll[1] - 0.5), particle[2])
+        particle[3] -= particle[8] * self.app.dt
+        if particle[3] < 1:
+            return
+        return 1
     def update(self, surf, scroll):
         for system in self.particle_systems:
             self.particle_systems[system].update(self.app.world.window.alpha_surf, scroll)
@@ -80,30 +104,7 @@ class GFXManager:
                 spark.draw(surf, scroll)
             else:
                 self.sparks.remove(spark)
-        for i, particle in sorted(enumerate(self.kick_up.copy()), reverse=True): # [pos, vel, color, alpha, bounce, gravity, friction, surf, decay=1]
-            if particle[9] < 10:
-                particle[0][0] += particle[1][0] * self.app.dt
-                if self.app.world.tile_map.physics_map.particle_solid(particle[0]):
-                    particle[1][0] *= -particle[4]
-                    particle[0][0] += particle[1][0] * self.app.dt * 2
-                    particle[1][1] *= particle[6]
-                particle[0][1] += particle[1][1] * self.app.dt
-                if self.app.world.tile_map.physics_map.particle_solid(particle[0]):
-                    particle[1][1] *= -particle[4]
-                    particle[0][1] += particle[1][1] * self.app.dt * 2
-                    particle[1][0] *= particle[6]
-                if abs(particle[1][0]) < 0.03 and abs(particle[1][1]) < 0.03:
-                    particle[9] += 1 * self.app.dt
-                particle[1][1] += particle[5] * self.app.dt
-            for c in particle[2]:
-                c = particle[3]
-            if particle[0] in self.app:
-                self.app.world.window.alpha_surf.set_at((particle[0][0] - scroll[0] - 0.5, particle[0][1] - scroll[1] - 0.5), particle[2])
-            particle[3] -= particle[8] * self.app.dt
-            if particle[3] < 1:
-                self.kick_up.pop(i)
-        if len(self.kick_up) > 500:
-            self.kick_up[0][3] = max(0, self.kick_up[0][3] - 100)
+        self.kick_up = [particle for particle in self.kick_up if self.update_kickup(particle, scroll)]
         for i, particle in sorted(enumerate(self.glow_dust.copy()), reverse=True): # [pos, vel, color, alpha, bounce, gravity, friction, color, decay=1]
             if particle[9] < 10:
                 particle[0][0] += particle[1][0] * self.app.dt
