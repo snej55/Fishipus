@@ -22,7 +22,7 @@ class World:
         self.tile_map.draw_tiles(screen, scroll)
         self.app.update(screen, scroll)
         self.gfx_manager.update(screen, scroll)
-        pygame.display.set_caption(f'{self.app.title} at {self.tick.clock.get_fps() :.0f} FPS')
+        #pygame.display.set_caption(f'{self.app.title} at {self.tick.clock.get_fps() :.0f} FPS')
         self.window.shade(shade_uniforms)
         self.window.inflate()
         self.tick.update()
