@@ -7,7 +7,7 @@ from ..gfx.management import GFXManager
 class World:
     def __init__(self, app):
         self.app = app
-        self.window = Window(app)
+        self.window = Window(app) # hey
         self.tile_map = TileMap(app)
         self.tick = Tick(app, fps=self.app.fps)
         self.gfx_manager = GFXManager(app)

@@ -1,4 +1,4 @@
-'''WARNING: This will be some of the *stinkiest* code you will ever edit. Use at own risk...'''
+'''WARNING: This is some *stinky* code. Use at own risk...'''
 
 import pygame, math, time, sys
 

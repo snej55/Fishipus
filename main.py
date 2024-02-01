@@ -23,7 +23,7 @@ class App(e.Pygmy):
         self.player.update()
         self.player.draw(screen, scroll)
         self.world.tile_map.leaves(screen, scroll)
-        #pygame.draw.rect(screen, (255, 0, 0), self.player.rect())
+        #pygame.draw.rect(screen, (255, 0, 0), self.player.rect())f
         #self.path_finder.draw(screen, scroll)
         self.text.render(self.world.window.ui_surf, f'{self.world.tick.clock.get_fps() :.1f} fps', (250, 10))
 

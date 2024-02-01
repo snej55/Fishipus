@@ -13,7 +13,7 @@ uniform vec2 camera;
 in vec2 uvs; // pixel coordinates
 out vec4 f_color;  // pixel color
 
-uniform float timeScale = 0.00025;  // time speed
+uniform float timeScale = 0.0001;  // time speed
 // messy stuff ---------
 uniform float angleConst = 1.5;
 uniform float stripeImpact = 0.03;
@@ -22,7 +22,7 @@ uniform float bloom_threshold = 0.2;
 uniform float bloom_weight = 0.25;
 uniform float weight[7] = float[] (0.227027, 0.2, 0.17, 0.1216216, 0.08, 0.03, 0.016216);
 // ---------------------
-uniform float threshold = 0.34; // size of hole
+uniform float threshold = 0.43; // size of hole
 
 vec4 bitFilter(vec4 color) {
     vec4 bloom_color = color;
@@ -40,9 +40,14 @@ vec4 sampleTex(vec2 coords) {
 void main() {
     float centerDis = distance(vec2(0.5, 0.5), uvs);
     centerDis = centerDis * centerDis * centerDis * centerDis * 0.2;
-    vec2 texCoords = vec2(uvs.x, uvs.y);  // can be used to warp screen 
+    vec2 texCoords = vec2(uvs.x, uvs.y);  // can be used to warp screen
+    vec2 noise_offset = vec2(texture(noise, vec2(texCoords.x, texCoords.y - time * timeScale)).r) * 0.5; 
+    vec4 baseColor;
+    vec4 noiseColor = texture(noise, texCoords * 2 - noise_offset);
+    vec4 hillColor = texture(noise, texCoords * 0.5 - noise_offset * 0.5);
+    vec4 combinedColor = (noiseColor + hillColor * 2) * 0.333;
     // manipulate noise texture based on time --------------------------------------------------
-    vec2 shiftTexcoords = vec2(texCoords.x + sin(time * 0.2 * timeScale), texCoords.y * 2.0 - sin(time * 0.02 * timeScale)); // change stuff here
+    /*vec2 shiftTexcoords = vec2(texCoords.x + sin(time * 0.2 * timeScale), texCoords.y * 2.0 - sin(time * 0.02 * timeScale)); // change stuff here
     vec4 color1 = texture(noise, shiftTexcoords);
     
     shiftTexcoords = vec2(texCoords.x * 2.7 - sin(time * 0.05 * timeScale), texCoords.y * 1.7 - sin(time * 0.5 * timeScale)); // and here
@@ -55,9 +60,8 @@ void main() {
     // some funky math
     vec4 combinedColor = (color1 + color2 * 0.5 + color3 * 0.5) * 0.5;
     combinedColor = combinedColor * (distance(vec2(0.5, 0.5), texCoords) * 0.5 + 0.5) + sin((texCoords.x - texCoords.y * angleConst) * stripeWidth) * stripeImpact;
-
-    vec4 baseColor;
-    if (combinedColor.r < threshold - 0.03) {
+    */
+    if (combinedColor.r < threshold) {
         // reflections
         float center_dis =  (distance(vec2(0.5, 0.5), texCoords * 5) - 0.5) * 0.2 + 0.8;
         vec2 reflectionCoords = vec2((texCoords.x - 0.5) * center_dis + 0.5, (texCoords.y - 0.5) * center_dis + 0.5);
@@ -68,15 +72,15 @@ void main() {
             baseColor = vec4(0.025 + reflectionColor.g * 0.1, 0.025 + reflectionColor.b * 0.1, 0.045 + reflectionColor.r * 0.1, 1.0);
         }
     } else if (combinedColor.r < threshold + 0.01) {
-        baseColor = vec4(0.0, 0.0, 0.01, 1.0);  // different colors
+        baseColor = vec4(0.27450980392156865, 0.3568627450980392, 0.9058823529411765, 1.0);  // different colors
     } else if (combinedColor.r < threshold + 0.02) {
-        baseColor = vec4(0.2, 0.2, 0.34, 1.0);
+        baseColor = vec4(0.27450980392156865, 0.3568627450980392, 0.9058823529411765, 1.0);
     } else if (combinedColor.r < threshold + 0.05) {
-        baseColor = vec4(0.11, 0.118, 0.176, 1.0);
+        baseColor = vec4(0.13333333333333333, 0.17647058823529413, 0.5058823529411764, 1.0);
     } else if (combinedColor.r < threshold + 0.1) {
-        baseColor = vec4(0.05, 0.05, 0.09, 1.0);
+        baseColor = vec4(0.10588235294117647, 0.09411764705882353, 0.3254901960784314, 1.0);
     } else {
-        baseColor = vec4(0.025, 0.025, 0.045, 1.0);
+        baseColor = vec4(0.054901960784313725, 0.03529411764705882, 0.1843137254901961, 1.0);
     }
 
     // check if part of background

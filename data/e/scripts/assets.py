@@ -1,5 +1,3 @@
-import pygame
-
 from .tools.utils import *
 from .bip import *
 
