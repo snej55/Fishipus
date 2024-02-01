@@ -177,7 +177,7 @@ class Entity:
                 self.outside.y = 0
                 self.pos.y = entity_rect.y
 
-        self.movement.y = min(16, self.movement.y + self.gravity * self.app.dt)
+        self.movement.y = min(20, self.movement.y + self.gravity * self.app.dt)
         return self.health < 0 or self.app.world.tile_map.physics_map.tile_type_at(self.rect().center) in self.app.danger
 
     def damage(self, intt=1):
@@ -200,7 +200,7 @@ grounded = lambda entity: entity.grounded < entity.ground_buff
 
 # TODO: MAKE A SWORD FOR THIS DUDE!!
 class PlayerBase(Entity):
-    def __init__(self, pos, dimensions, anim_offset, app, air_friction=0.56, friction=0.54, vx=1.4, vj=-3.15, jump_buff=15, double_jump=1, gravity_apr=[0.16,0.32,0.1,1,0], out_dim=0.5,
+    def __init__(self, pos, dimensions, anim_offset, app, air_friction=0.56, friction=0.54, vx=1.4, vj=-3.15, jump_buff=15, double_jump=1, gravity_apr=[0.16,0.4,0.2,1,0], out_dim=0.5,
              grounded_tim=1, jump_tim=1, fall_buff=12, ground_buff=20, jump_animbuff=200):
         super().__init__(pos, dimensions, anim_offset, app, 'player', False, 'all')
         self.controls = {'up': False, 'down': False, 'left': False, 'right': False}
@@ -261,6 +261,8 @@ class PlayerBase(Entity):
                 self.jumps = 1
         if self.movement[1] ** 2 < self.gravity_apr[3]:
             self.gravity = self.gravity_apr[0]
+            if self.falling > 3:
+                self.movement[0] += self.movement[0] * (1 - self.movement[1] ** 2 / self.gravity_apr[3]) * 0.2
         else:
             self.gravity = self.gravity_apr[1]
         if self.movement[1] > self.gravity_apr[4]:

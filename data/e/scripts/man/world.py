@@ -1,8 +1,7 @@
-import pygame
-from .window import Window
+from .window import Window # hello
 from .fps import Tick
 from ..env.tiles import TileMap
-from ..entities.ents import EntityManager
+from ..entities.ents import EntityManager # hey
 from ..gfx.management import GFXManager
 
 class World:
